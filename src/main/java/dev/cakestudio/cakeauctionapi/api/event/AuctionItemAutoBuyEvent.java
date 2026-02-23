@@ -5,16 +5,14 @@ import dev.cakestudio.cakeauctionapi.api.data.IAuctionItem;
 import lombok.Getter;
 import lombok.NonNull;
 
-import org.bukkit.entity.Player;
-
 @Getter
-public class AuctionItemTakeEvent extends AuctionEvent {
-    private final Player user;
+public class AuctionItemAutoBuyEvent extends AuctionEvent {
     private final IAuctionItem item;
+    private final double payout;
 
-    public AuctionItemTakeEvent(@NonNull Player user, @NonNull IAuctionItem item) {
-        this.user = user;
+    public AuctionItemAutoBuyEvent(@NonNull IAuctionItem item, double payout) {
         this.item = item;
+        this.payout = payout;
     }
 
 }

@@ -1,23 +1,20 @@
 package dev.cakestudio.cakeauctionapi.api.event;
 
 import dev.cakestudio.cakeauctionapi.api.data.IAuctionItem;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
+import lombok.Getter;
+import lombok.NonNull;
+
+import org.bukkit.entity.Player;
+
+@Getter
 public class AuctionItemBuyProcessEvent extends AuctionCancellableEvent {
     private final Player buyer;
     private final IAuctionItem item;
 
-    public AuctionItemBuyProcessEvent(@NotNull Player buyer, @NotNull IAuctionItem item) {
+    public AuctionItemBuyProcessEvent(@NonNull Player buyer, @NonNull IAuctionItem item) {
         this.buyer = buyer;
         this.item = item;
     }
 
-    public Player getBuyer() {
-        return buyer;
-    }
-
-    public IAuctionItem getItem() {
-        return item;
-    }
 }

@@ -1,7 +1,9 @@
 package dev.cakestudio.cakeauctionapi;
 
 import dev.cakestudio.cakeauctionapi.api.ICakeAuctionAPI;
+
 import lombok.NonNull;
+
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -25,4 +27,5 @@ public final class CakeAuctionAPI extends JavaPlugin {
         }
         return implementation;
     }
+
 }

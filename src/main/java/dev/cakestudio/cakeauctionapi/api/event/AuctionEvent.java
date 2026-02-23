@@ -2,7 +2,8 @@ package dev.cakestudio.cakeauctionapi.api.event;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
+
+import lombok.NonNull;
 
 public abstract class AuctionEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
@@ -13,14 +14,15 @@ public abstract class AuctionEvent extends Event {
         super(isAsync);
     }
 
-    @NotNull
+    @NonNull
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
-    @NotNull
+    @NonNull
     public static HandlerList getHandlerList() {
         return handlers;
     }
+
 }

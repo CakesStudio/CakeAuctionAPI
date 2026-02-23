@@ -1,6 +1,7 @@
 package dev.cakestudio.cakeauctionapi.api.event;
 
 import org.bukkit.event.Cancellable;
+
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AuctionCancellableEvent extends AuctionEvent implements Cancellable {
@@ -31,4 +32,5 @@ public abstract class AuctionCancellableEvent extends AuctionEvent implements Ca
     public void setReason(@Nullable String reason) {
         this.reason = reason;
     }
+
 }

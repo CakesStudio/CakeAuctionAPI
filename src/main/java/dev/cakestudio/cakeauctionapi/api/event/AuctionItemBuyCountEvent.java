@@ -1,29 +1,22 @@
 package dev.cakestudio.cakeauctionapi.api.event;
 
 import dev.cakestudio.cakeauctionapi.api.data.IAuctionItem;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
+import lombok.Getter;
+import lombok.NonNull;
+
+import org.bukkit.entity.Player;
+
+@Getter
 public class AuctionItemBuyCountEvent extends AuctionEvent {
     private final Player buyer;
     private final IAuctionItem item;
     private final int count;
 
-    public AuctionItemBuyCountEvent(@NotNull Player buyer, @NotNull IAuctionItem item, int count) {
+    public AuctionItemBuyCountEvent(@NonNull Player buyer, @NonNull IAuctionItem item, int count) {
         this.buyer = buyer;
         this.item = item;
         this.count = count;
     }
 
-    public Player getBuyer() {
-        return buyer;
-    }
-
-    public IAuctionItem getItem() {
-        return item;
-    }
-
-    public int getCount() {
-        return count;
-    }
 }
