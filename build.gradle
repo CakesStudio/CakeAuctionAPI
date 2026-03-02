@@ -37,6 +37,6 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 jar {
-    archiveFileName.set("${project.name}-${version}.jar")
-    destinationDirectory.set(rootDir)
+    archiveFileName.set("СakeAuctionAPI-${version}.jar")
+    destinationDirectory.set(layout.projectDirectory.dir("api"))
 }
