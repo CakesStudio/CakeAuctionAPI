@@ -42,16 +42,28 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 tasks.jar {
-    enabled = false
+    enabled = true
 }
 
 tasks.shadowJar {
     archiveFileName.set("CakeAuctionAPI-${version}.jar")
     destinationDirectory.set(layout.projectDirectory)
-    
+
     minimize {
         exclude dependency("com.tcoded:FoliaLib:.*")
     }
+}
+
+configurations {
+    shadowApi {
+        canBeResolved = false
+        canBeConsumed = true
+        extendsFrom implementation, runtimeOnly
+    }
+}
+
+artifacts {
+    shadowApi(shadowJar)
 }
 
 build.dependsOn shadowJar
