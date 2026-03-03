@@ -1,0 +1,9 @@
+name: ExampleAddon
+main: dev.cakestudio.exampleaddon.ExampleAddon
+version: '${version}'
+api-version: '1.1'
+folia-supported: true
+description: "A simple example addon for CakeAuction"
+authors: [ "ExampleAuthor" ]
+depend: []
+soft-depend: []

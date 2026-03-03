@@ -1,27 +1,31 @@
 plugins {
     id 'java'
-    id "io.github.goooler.shadow" version "8.1.8"
 }
 
 group = 'dev.cakestudio'
-version = '1.1.0'
+version = '1.0.0'
 
 repositories {
     mavenCentral()
     maven { url = 'https://repo.papermc.io/repository/maven-public/' }
-    maven { url = 'https://oss.sonatype.org/content/groups/public/' }
+    maven { url = 'https://jitpack.io/' }
     maven { url = 'https://repo.tcoded.com/releases' } // Folia
 }
 
 dependencies {
+    // CakeAuction API (Replace VERSION with actual version or use local project)
+    compileOnly 'com.github.CakesStudio:CakeAuction:VERSION'
+    
+    // Paper API
     compileOnly 'com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT'
 
-    implementation "com.tcoded:FoliaLib:0.5.1" // Folia
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.42'
+    annotationProcessor 'org.projectlombok:lombok:1.18.42'
+    testCompileOnly "org.projectlombok:lombok:1.18.42"
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
 
-    compileOnly "org.projectlombok:lombok:1.18.38"
-    annotationProcessor "org.projectlombok:lombok:1.18.38"
-    testCompileOnly "org.projectlombok:lombok:1.18.38"
-    testAnnotationProcessor "org.projectlombok:lombok:1.18.38"
+    compileOnly "com.tcoded:FoliaLib:0.5.1" // Folia
 }
 
 java {
@@ -32,7 +36,7 @@ processResources {
     def props = [version: version]
     inputs.properties props
     filteringCharset 'UTF-8'
-    filesMatching('plugin.yml') {
+    filesMatching('addon.yml') {
         expand props
     }
 }
@@ -46,12 +50,10 @@ tasks.jar {
 }
 
 tasks.shadowJar {
-    archiveFileName.set("CakeAuctionAPI-${version}.jar")
+    archiveFileName.set("ExampleAddon-${version}.jar")
     destinationDirectory.set(layout.projectDirectory)
-    
-    minimize {
-        exclude dependency("com.tcoded:FoliaLib:.*")
-    }
+
+    minimize()
 }
 
 build.dependsOn shadowJar
