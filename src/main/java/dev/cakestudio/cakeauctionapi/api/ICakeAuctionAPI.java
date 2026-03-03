@@ -4,6 +4,7 @@ import com.tcoded.folialib.FoliaLib;
 
 import dev.cakestudio.cakeauctionapi.api.data.IAuctionItem;
 import dev.cakestudio.cakeauctionapi.api.manager.IMenuManager;
+import dev.cakestudio.cakeauctionapi.api.manager.IActionManager;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -99,6 +100,13 @@ public interface ICakeAuctionAPI {
      * @return The {@link IMenuManager} instance.
      */
     IMenuManager getMenuManager();
+
+    /**
+     * Returns the manager responsible for custom actions.
+     *
+     * @return The {@link IActionManager} instance.
+     */
+    IActionManager getActionManager();
 
     /**
      * Registers a command object using the internal TriumphTeam Command library.
