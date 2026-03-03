@@ -49,7 +49,7 @@ dependencies {
     </dependency>
 </dependencies>
 ```
-*(Replace `VERSION` with the target release, e.g., `1.1.1`)*
+*(Replace `VERSION` with the target release, e.g., `1.1.2`)*
 
 <br/>
 
@@ -62,7 +62,7 @@ Addons require an `addon.yml` file in the resources directory.
 name: MyAwesomeAddon
 main: com.example.myaddon.MyAddon
 version: 1.0.0
-api-version: '1.1.1'       # Required CakeAuctionAPI version for compatibility
+api-version: '1.1.2'       # Required CakeAuctionAPI version for compatibility
 folia-supported: true    # Enable Folia support
 description: "Example description"
 authors: [ "Developer" ]
@@ -139,6 +139,35 @@ getMenuManager().registerMenu(player, externalMenuInstance);
 
 <br/>
 
+## 🎭 Custom Actions API
+CakeAuction allows addons to register their own action tags (e.g., `[MY_ACTION]`), which can be used in any configuration file with built-in support for `<delay=...>` and `<chance=...>`.
+
+### 1. Registering an Action
+Implement the `IAction` functional interface and register it via the `ActionManager`.
+
+```java
+IActionManager actionManager = CakeAuctionAPI.getApi().getActionManager();
+
+// Register a custom action tag: [GIVE_REWARD]
+actionManager.registerAction("GIVE_REWARD", (player, location, parsedText) -> {
+    // parsedText is the string after the tag in the config
+    player.sendMessage("§aYou received a reward: §f" + parsedText);
+});
+```
+
+### 2. Using in Config
+Administrators can now use your custom action in `config.yml` or any menu:
+```yaml
+actions:
+  - "[GIVE_REWARD] Super Diamond <chance=50> <delay=20>"
+  - "[CONSOLE_COMMAND] effect give {player} speed 10 1"
+```
+
+> [!TIP]
+> **Automatic Formatting:** All placeholders (like `{player}`) are automatically parsed by the core plugin before your action's `run` method is called.
+
+<br/>
+
 ## 📅 Event API
 CakeAuction provides a comprehensive set of events. **ProcessEvents** are cancellable and fire *before* the action is finalized.
 
@@ -161,6 +190,57 @@ CakeAuction provides a comprehensive set of events. **ProcessEvents** are cancel
 | `AuctionItemTakeUnsoldEvent` | Fired when an expired item is reclaimed. |
 | `AuctionItemAutoBuyEvent` | Fired when an item is bought via auto-buy system. |
 | `AuctionPassUseEvent` | Fired when a player uses an auction pass. |
+
+<br/>
+
+## 💰 Economy API
+CakeAuction abstracts economy operations, allowing you to interact with the server's economy (Vault, etc.) through a consistent interface.
+
+```java
+IEconomyManager economy = CakeAuctionAPI.getApi().getEconomyManager();
+
+// Check balance and withdraw
+if (economy.has(player, 100.0)) {
+    economy.withdraw(player, 100.0);
+}
+
+// Deposit and format currency
+economy.deposit(player, 50.0);
+String formatted = economy.format(50.0); // e.g., "$50.00"
+```
+
+<br/>
+
+## 🔗 Hook API
+The Hook API provides a unified way to interact with external plugins like **ItemsAdder** or **Orizon** without direct dependencies.
+
+```java
+IHookManager hooks = CakeAuctionAPI.getApi().getHookManager();
+
+// Get a custom item by its identifier
+ItemStack customItem = hooks.getItem("itemsadder:ruby");
+
+// Get the unique ID of an item
+String id = hooks.getItemId(someItemStack);
+```
+
+<br/>
+
+## 📝 Text & Formatting API
+The Text Manager handles parsing, coloring, and messaging with built-in support for **MiniMessage**, **HEX**, and **PlaceholderAPI**.
+
+```java
+ITextManager text = CakeAuctionAPI.getApi().getTextManager();
+
+// Parse text to Adventure Component
+Component component = text.parse("<red>Hello <yellow>{player}", player);
+
+// Send message to player
+text.sendMessage(player, "&aWelcome to the auction!");
+
+// Broadcast to all players
+text.broadcast("<rainbow>Special Event Started!");
+```
 
 <br/>
 

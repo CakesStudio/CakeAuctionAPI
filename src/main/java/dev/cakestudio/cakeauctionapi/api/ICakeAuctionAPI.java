@@ -5,6 +5,9 @@ import com.tcoded.folialib.FoliaLib;
 import dev.cakestudio.cakeauctionapi.api.data.IAuctionItem;
 import dev.cakestudio.cakeauctionapi.api.manager.IMenuManager;
 import dev.cakestudio.cakeauctionapi.api.manager.IActionManager;
+import dev.cakestudio.cakeauctionapi.api.manager.ITextManager;
+import dev.cakestudio.cakeauctionapi.api.manager.IEconomyManager;
+import dev.cakestudio.cakeauctionapi.api.manager.IHookManager;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -107,6 +110,27 @@ public interface ICakeAuctionAPI {
      * @return The {@link IActionManager} instance.
      */
     IActionManager getActionManager();
+
+    /**
+     * Returns the manager responsible for text formatting and messaging.
+     *
+     * @return The {@link ITextManager} instance.
+     */
+    ITextManager getTextManager();
+
+    /**
+     * Returns the manager responsible for economy operations.
+     *
+     * @return The {@link IEconomyManager} instance.
+     */
+    IEconomyManager getEconomyManager();
+
+    /**
+     * Returns the manager responsible for external plugin hooks.
+     *
+     * @return The {@link IHookManager} instance.
+     */
+    IHookManager getHookManager();
 
     /**
      * Registers a command object using the internal TriumphTeam Command library.

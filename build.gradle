@@ -1,10 +1,10 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id "io.github.goooler.shadow" version "8.1.8"
 }
 
 group = 'dev.cakestudio'
-version = '1.1.1'
+version = '1.1.2'
 
 repositories {
     mavenCentral()
@@ -16,12 +16,20 @@ repositories {
 dependencies {
     compileOnly 'com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT'
 
-    implementation "com.tcoded:FoliaLib:0.5.1" // Folia
+    // Folia
+    api "com.tcoded:FoliaLib:0.5.1"
 
-    compileOnly "org.projectlombok:lombok:1.18.38"
-    annotationProcessor "org.projectlombok:lombok:1.18.38"
-    testCompileOnly "org.projectlombok:lombok:1.18.38"
-    testAnnotationProcessor "org.projectlombok:lombok:1.18.38"
+    // Adventure
+    api 'net.kyori:adventure-platform-bukkit:4.4.1'
+    api 'net.kyori:adventure-text-minimessage:4.26.1'
+    api 'net.kyori:adventure-text-serializer-legacy:4.26.1'
+    api 'net.kyori:adventure-text-serializer-plain:4.26.1'
+
+    // Lombok
+    compileOnly "org.projectlombok:lombok:1.18.42"
+    annotationProcessor "org.projectlombok:lombok:1.18.42"
+    testCompileOnly "org.projectlombok:lombok:1.18.42"
+    testAnnotationProcessor "org.projectlombok:lombok:1.18.42"
 }
 
 java {
@@ -42,7 +50,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 tasks.jar {
-    enabled = true
+    enabled = false
 }
 
 tasks.shadowJar {
@@ -51,19 +59,8 @@ tasks.shadowJar {
 
     minimize {
         exclude dependency("com.tcoded:FoliaLib:.*")
+        exclude dependency("net.kyori:.*")
     }
-}
-
-configurations {
-    shadowApi {
-        canBeResolved = false
-        canBeConsumed = true
-        extendsFrom implementation, runtimeOnly
-    }
-}
-
-artifacts {
-    shadowApi(shadowJar)
 }
 
 build.dependsOn shadowJar
