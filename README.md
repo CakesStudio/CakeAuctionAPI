@@ -49,7 +49,7 @@ dependencies {
     </dependency>
 </dependencies>
 ```
-*(Replace `VERSION` with the target release, e.g., `1.1.2`)*
+*(Replace `VERSION` with the target release, e.g., `1.1.3`)*
 
 <br/>
 
@@ -62,7 +62,7 @@ Addons require an `addon.yml` file in the resources directory.
 name: MyAwesomeAddon
 main: com.example.myaddon.MyAddon
 version: 1.0.0
-api-version: '1.1.2'       # Required CakeAuctionAPI version for compatibility
+api-version: '1.1.3'       # Required CakeAuctionAPI version for compatibility
 folia-supported: true    # Enable Folia support
 description: "Example description"
 authors: [ "Developer" ]
