@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'dev.cakestudio'
-version = '1.1.5'
+version = '1.1.6'
 
 repositories {
     mavenCentral()
@@ -37,21 +37,13 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
-processResources {
-    def props = [version: version]
-    inputs.properties props
-    filteringCharset 'UTF-8'
-    filesMatching('plugin.yml') {
-        expand props
-    }
-}
-
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
 tasks.jar {
-    enabled = false
+    enabled = true
+    archiveClassifier.set('raw')
 }
 
 tasks.shadowJar {

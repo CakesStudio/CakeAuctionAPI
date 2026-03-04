@@ -62,7 +62,10 @@ tasks.shadowJar {
     relocate 'net.kyori', 'dev.cakestudio.cakeauction.libs.kyori'
     relocate 'com.tcoded.folialib', 'dev.cakestudio.cakeauction.libs.folialib'
 
-    minimize()
+    minimize {
+        exclude dependency("com.tcoded:FoliaLib:.*")
+        exclude dependency("net.kyori:.*")
+    }
 }
 
 build.dependsOn shadowJar

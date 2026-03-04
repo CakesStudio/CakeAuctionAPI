@@ -17,6 +17,9 @@ CakeAuction API is designed to provide high-level abstractions for auction manag
 
 ## 🚀 Installation
 
+> [!IMPORTANT]
+> **No Standalone Installation Needed:** The API is already bundled within the main **CakeAuction** plugin. You do **not** need to put a separate API JAR in your server's `/plugins` folder.
+
 > [!TIP]
 > CakeAuction API is hosted on **JitPack**. Ensure you use the `compileOnly` scope to avoid bundling the API into your JAR.
 
@@ -51,7 +54,7 @@ dependencies {
     </dependency>
 </dependencies>
 ```
-*(Replace `VERSION` with the target release, e.g., `1.1.5`)*
+*(Replace `VERSION` with the target release, e.g., `1.1.6`)*
 
 <br/>
 
@@ -79,7 +82,7 @@ Addons require an `addon.yml` file in the resources directory.
 name: MyAwesomeAddon
 main: com.example.myaddon.MyAddon
 version: 1.0.0
-api-version: '1.1.5'       # Required CakeAuctionAPI version for compatibility
+api-version: '1.1.6'       # Required CakeAuctionAPI version for compatibility
 folia-supported: true    # Enable Folia support
 description: "Example description"
 authors: [ "Developer" ]
