@@ -5,7 +5,7 @@ plugins {
 }
 
 group = (project.hasProperty('group') && project.group != 'unspecified') ? project.group : 'dev.cakestudio'
-version = (project.hasProperty('version') && project.version != 'unspecified') ? project.version : '1.2'
+version = (project.hasProperty('version') && project.version != 'unspecified') ? project.version : '1.2.1'
 
 repositories {
     mavenCentral()
@@ -51,11 +51,6 @@ tasks.shadowJar {
 
     relocate 'net.kyori', 'dev.cakestudio.cakeauction.libs.kyori'
     relocate 'com.tcoded.folialib', 'dev.cakestudio.cakeauction.libs.folialib'
-
-    minimize {
-        exclude dependency("com.tcoded:FoliaLib:.*")
-        exclude dependency("net.kyori:.*")
-    }
 }
 
 build.dependsOn shadowJar

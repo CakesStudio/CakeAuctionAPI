@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id "io.github.goooler.shadow" version "8.1.8"
 }
 
 group = 'dev.cakestudio'
@@ -14,7 +15,7 @@ repositories {
 
 dependencies {
     // CakeAuction API (Replace VERSION with actual version or use local project)
-    compileOnly 'com.github.CakesStudio:CakeAuction:VERSION'
+    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:VERSION'
     
     // Paper API
     compileOnly 'com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT'
@@ -36,15 +37,6 @@ dependencies {
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
-}
-
-processResources {
-    def props = [version: version]
-    inputs.properties props
-    filteringCharset 'UTF-8'
-    filesMatching('addon.yml') {
-        expand props
-    }
 }
 
 tasks.withType(JavaCompile).configureEach {
