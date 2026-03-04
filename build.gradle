@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id "io.github.goooler.shadow" version "8.1.8"
+    id 'maven-publish'
 }
 
 group = 'dev.cakestudio'
@@ -67,3 +68,18 @@ tasks.shadowJar {
 }
 
 build.dependsOn shadowJar
+
+publishing {
+    publications {
+        CakeAuctionAPIPublication(MavenPublication) {
+            artifactId = 'CakeAuctionAPI'
+            groupId = 'dev.cakestudio'
+            version = project.version
+
+            artifact tasks.shadowJar
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
