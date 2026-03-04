@@ -4,8 +4,8 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'dev.cakestudio'
-version = '1.1.6'
+group = (project.hasProperty('group') && project.group != 'unspecified') ? project.group : 'dev.cakestudio'
+version = (project.hasProperty('version') && project.version != 'unspecified') ? project.version : '1.2'
 
 repositories {
     mavenCentral()
@@ -48,7 +48,6 @@ tasks.jar {
 
 tasks.shadowJar {
     archiveFileName.set("CakeAuctionAPI-${version}.jar")
-    destinationDirectory.set(layout.projectDirectory)
 
     relocate 'net.kyori', 'dev.cakestudio.cakeauction.libs.kyori'
     relocate 'com.tcoded.folialib', 'dev.cakestudio.cakeauction.libs.folialib'
@@ -65,7 +64,7 @@ publishing {
     publications {
         CakeAuctionAPIPublication(MavenPublication) {
             artifactId = 'CakeAuctionAPI'
-            groupId = 'dev.cakestudio'
+            groupId = project.group
             version = project.version
 
             artifact tasks.shadowJar

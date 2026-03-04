@@ -4,8 +4,6 @@ import org.bukkit.entity.Player;
 
 import lombok.NonNull;
 
-import org.jetbrains.annotations.Nullable;
-
 /**
  * Manages plugin GUI menus and player interactions with them.
  */
@@ -34,13 +32,13 @@ public interface IMenuManager {
      * @param player The player.
      * @param menu   The menu instance.
      */
-    void registerMenu(@NonNull Player player, @NonNull Object menu);
+    void registerMenu(Player player, @NonNull Object menu);
 
     /**
      * Unregisters the currently active menu for a player.
      *
      * @param player The player.
      */
-    void unregisterMenu(@NonNull Player player);
+    void unregisterMenu(Player player);
 
-    }
+}

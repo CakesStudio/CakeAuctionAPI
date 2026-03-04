@@ -54,7 +54,7 @@ dependencies {
     </dependency>
 </dependencies>
 ```
-*(Replace `VERSION` with the target release, e.g., `1.1.6`)*
+*(Replace `VERSION` with the target release, e.g., `1.2`)*
 
 <br/>
 
@@ -82,7 +82,7 @@ Addons require an `addon.yml` file in the resources directory.
 name: MyAwesomeAddon
 main: com.example.myaddon.MyAddon
 version: 1.0.0
-api-version: '1.1.6'       # Required CakeAuctionAPI version for compatibility
+api-version: '1.2'       # Required CakeAuctionAPI version for compatibility
 folia-supported: true    # Enable Folia support
 description: "Example description"
 authors: [ "Developer" ]
@@ -142,6 +142,11 @@ ICakeAuctionAPI api = CakeAuctionAPI.getApi();
 
 // Get active auctions
 Collection<IAuctionItem> items = api.getActiveAuctions();
+
+// Check if auction items are fully loaded from database
+if (api.isAuctionLoaded()) {
+    // Safe to perform analytics or bulk operations
+}
 
 // Create a new auction lot
 api.createAuction(player, itemStack, 500.0, 3600L, false);
@@ -209,6 +214,7 @@ CakeAuction provides a comprehensive set of events. **ProcessEvents** are cancel
 | `AuctionItemTakeEvent` | Fired when an item is reclaimed by the seller. |
 | `AuctionItemTakeUnsoldEvent` | Fired when an expired item is reclaimed. |
 | `AuctionItemAutoBuyEvent` | Fired when an item is bought via auto-buy system. |
+| `AuctionItemsLoadedEvent` | Fired when all items are loaded from DB to cache (Async). |
 | `AuctionPassUseEvent` | Fired when a player uses an auction pass. |
 
 <br/>

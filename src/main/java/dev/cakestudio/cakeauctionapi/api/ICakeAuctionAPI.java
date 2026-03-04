@@ -133,6 +133,13 @@ public interface ICakeAuctionAPI {
     IHookManager getHookManager();
 
     /**
+     * Checks if the auction items have been loaded from the database into the cache.
+     *
+     * @return true if the auction is ready to use, false otherwise.
+     */
+    boolean isAuctionLoaded();
+
+    /**
      * Registers a command object using the internal TriumphTeam Command library.
      * Integrated into the plugin's main command manager.
      *
