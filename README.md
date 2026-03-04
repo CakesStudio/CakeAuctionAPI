@@ -27,7 +27,8 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'com.github.CakesStudio:CakeAuction:VERSION'
+    // Note: use :api suffix to depend only on the API module
+    compileOnly 'com.github.CakesStudio:CakeAuction:api:VERSION'
 }
 ```
 
@@ -45,11 +46,27 @@ dependencies {
         <groupId>com.github.CakesStudio</groupId>
         <artifactId>CakeAuction</artifactId>
         <version>VERSION</version>
+        <classifier>api</classifier>
         <scope>provided</scope>
     </dependency>
 </dependencies>
 ```
 *(Replace `VERSION` with the target release, e.g., `1.1.5`)*
+
+<br/>
+
+## 📦 Library Relocation
+CakeAuction relocates its internal libraries to prevent version conflicts. If your addon uses **Adventure API** or **FoliaLib**, you MUST add relocation rules to your `build.gradle` (using ShadowJar) to match the core's destination packages.
+
+This allows you to write standard `import net.kyori...` code while your addon's bytecode is automatically updated to point to the libraries provided by CakeAuction core.
+
+```gradle
+tasks.shadowJar {
+    // Relocate to match CakeAuction core packages
+    relocate 'net.kyori', 'dev.cakestudio.cakeauction.libs.kyori'
+    relocate 'com.tcoded.folialib', 'dev.cakestudio.cakeauction.libs.folialib'
+}
+```
 
 <br/>
 
