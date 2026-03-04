@@ -205,6 +205,8 @@ public abstract class AbstractAddon {
             } catch (Exception ignored) {}
         }
 
+        if (!getApi().getPlugin().isEnabled()) return;
+
         getApi().getFoliaLib().getScheduler().runLaterAsync(() -> {
             ClassLoader myLoader = myLoaderRef.get();
             if (myLoader == null) return;

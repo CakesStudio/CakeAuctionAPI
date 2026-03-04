@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     // CakeAuction API (Use the latest version https://jitpack.io/#CakesStudio/CakeAuctionAPI)
-    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:v1.2.3'
+    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:v1.2.4'
 
     // Paper API
     compileOnly 'com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT'

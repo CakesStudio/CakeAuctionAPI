@@ -54,20 +54,29 @@ dependencies {
     </dependency>
 </dependencies>
 ```
-*(Replace `VERSION` with the target release, e.g., `1.2.3`)*
+*(Replace `VERSION` with the target release, e.g., `1.2.4`)*
 
 <br/>
 
-## 📦 Library Relocation
-CakeAuction relocates its internal libraries to prevent version conflicts. If your addon uses **Adventure API** or **FoliaLib**, you MUST add relocation rules to your `build.gradle` (using ShadowJar) to match the core's destination packages.
+## 📦 Library Relocation & Dependencies
+CakeAuction core relocates its internal libraries (like **Adventure API** and **FoliaLib**) to prevent version conflicts. 
 
-This allows you to write standard `import net.kyori...` code while your addon's bytecode is automatically updated to point to the libraries provided by CakeAuction core.
+> [!CAUTION]
+> **DO NOT relocate** these libraries in your addon! 
+> The CakeAuction API uses original package names (`net.kyori`, `com.tcoded.folialib`). The core plugin automatically handles the translation between your addon's calls and its internal relocated libraries.
+
+Simply use `compileOnly` for these dependencies in your `build.gradle`:
 
 ```gradle
+dependencies {
+    compileOnly "com.tcoded:FoliaLib:0.5.1"
+    compileOnly 'net.kyori:adventure-platform-bukkit:4.4.1'
+    // ... other adventure/folia dependencies
+}
+
 tasks.shadowJar {
-    // Relocate to match CakeAuction core packages
-    relocate 'net.kyori', 'dev.cakestudio.cakeauction.libs.kyori'
-    relocate 'com.tcoded.folialib', 'dev.cakestudio.cakeauction.libs.folialib'
+    // No relocation needed for core libraries!
+    // Only relocate your private dependencies that you SHADE (implementation) into your addon.
 }
 ```
 
@@ -82,7 +91,7 @@ Addons require an `addon.yml` file in the resources directory.
 name: MyAwesomeAddon
 main: com.example.myaddon.MyAddon
 version: 1.0.0
-api-version: '1.2.3'       # Required CakeAuctionAPI version for compatibility
+api-version: '1.2.4'       # Required CakeAuctionAPI version for compatibility
 folia-supported: true    # Enable Folia support
 description: "Example description"
 authors: [ "Developer" ]
@@ -112,7 +121,11 @@ public class MyAddon extends AbstractAddon {
 ```
 
 > [!IMPORTANT]
-> **Automated Cleanup:** Upon disabling, CakeAuction automatically unregisters listeners, terminates schedulers (including non-cancelled tasks), removes commands from the Bukkit map, and closes open GUI menus.
+> **Automated Cleanup:** Upon disabling, CakeAuction automatically:
+> - Unregisters all listeners registered via `registerListener`.
+> - Removes all commands registered via `registerCommand`.
+> - Cancels all tasks scheduled via `runTask*` methods.
+> - Closes all GUI menus opened by this addon.
 
 <br/>
 
@@ -273,8 +286,8 @@ text.broadcast("<rainbow>Special Event Started!");
 ## ⚠️ Technical Guidelines
 
 1. **Static Access:** Always use `CakeAuctionAPI.getApi()` to access the implementation.
-2. **ClassLoader Safety:** Do not pass addon-local classes to persistent core-plugin collections without proper cleanup.
-3. **Folia threading:** Never use `Bukkit.getScheduler()` within an addon; regional threading errors may occur on Folia servers.
+2. **ClassLoader Safety:** The managed system handles most cleanup, but avoid static references to addon classes in the core plugin.
+3. **Folia threading:** Never use `Bukkit.getScheduler()` within an addon; regional threading errors may occur on Folia servers. Always use the provided `runTask*` methods.
 
 <br/>
 
