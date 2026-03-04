@@ -5,7 +5,7 @@ plugins {
 }
 
 group = (project.hasProperty('group') && project.group != 'unspecified') ? project.group : 'dev.cakestudio'
-version = (project.hasProperty('version') && project.version != 'unspecified') ? project.version : '1.2.2'
+version = (project.hasProperty('version') && project.version != 'unspecified') ? project.version : '1.2.3'
 
 repositories {
     mavenCentral()
@@ -49,9 +49,6 @@ tasks.jar {
 tasks.shadowJar {
     archiveClassifier.set('')
     archiveFileName.set("CakeAuctionAPI-${version}.jar")
-
-    relocate 'net.kyori', 'dev.cakestudio.cakeauction.libs.kyori'
-    relocate 'com.tcoded.folialib', 'dev.cakestudio.cakeauction.libs.folialib'
 }
 
 build.dependsOn shadowJar

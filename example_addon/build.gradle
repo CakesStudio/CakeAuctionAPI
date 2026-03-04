@@ -14,9 +14,9 @@ repositories {
 }
 
 dependencies {
-    // CakeAuction API (Replace VERSION with actual version or use local project)
-    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:VERSION'
-    
+    // CakeAuction API (Use the latest version https://jitpack.io/#CakesStudio/CakeAuctionAPI)
+    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:v1.2.3'
+
     // Paper API
     compileOnly 'com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT'
 
@@ -48,11 +48,8 @@ tasks.jar {
 }
 
 tasks.shadowJar {
-    archiveFileName.set("ExampleAddon-${version}.jar")
+    archiveFileName.set("AucAddon-${version}.jar")
     destinationDirectory.set(layout.projectDirectory)
-
-    relocate 'net.kyori', 'dev.cakestudio.cakeauction.libs.kyori'
-    relocate 'com.tcoded.folialib', 'dev.cakestudio.cakeauction.libs.folialib'
 }
 
 build.dependsOn shadowJar

@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
@@ -134,7 +135,11 @@ public abstract class AbstractAddon {
         }
     }
 
-    private void cleanup() {
+    /**
+     * Performs a complete cleanup of addon resources.
+     * This includes closing menus, unregistering listeners and commands, and canceling tasks.
+     */
+    protected void cleanup() {
         closeOpenedMenus();
 
         unregisterListeners();
@@ -144,7 +149,10 @@ public abstract class AbstractAddon {
         cancelTasks();
     }
 
-    private void unregisterListeners() {
+    /**
+     * Unregisters all listeners registered via {@link #registerListener(Listener)}.
+     */
+    protected void unregisterListeners() {
         for (Listener listener : registeredListeners) {
             HandlerList.unregisterAll(listener);
         }
@@ -152,7 +160,10 @@ public abstract class AbstractAddon {
         registeredListeners.clear();
     }
 
-    private void unregisterCommands() {
+    /**
+     * Unregisters all commands registered via {@link #registerCommand(Object)}.
+     */
+    protected void unregisterCommands() {
         for (Object command : registeredCommands) {
             getApi().unregisterCommand(command);
         }
@@ -160,7 +171,10 @@ public abstract class AbstractAddon {
         registeredCommands.clear();
     }
 
-    private void cancelTasks() {
+    /**
+     * Cancels all tasks scheduled via {@code runTask*} methods.
+     */
+    protected void cancelTasks() {
         for (WrappedTask task : tasks) {
             try {
                 if (!task.isCancelled()) {
@@ -171,15 +185,20 @@ public abstract class AbstractAddon {
         tasks.clear();
     }
 
-    private void closeOpenedMenus() {
+    /**
+     * Closes all menus that were opened by this addon for any online player.
+     * This method uses the addon's classloader to identify relevant menus.
+     */
+    protected void closeOpenedMenus() {
         IMenuManager menuManager = getMenuManager();
-        ClassLoader myLoader = this.classLoader;
+        WeakReference<ClassLoader> myLoaderRef = new WeakReference<>(this.classLoader);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             try {
                 Object activeMenu = menuManager.getActiveMenu(player);
+                ClassLoader myLoader = myLoaderRef.get();
 
-                if (activeMenu != null && activeMenu.getClass().getClassLoader() == myLoader) {
+                if (myLoader != null && activeMenu != null && activeMenu.getClass().getClassLoader() == myLoader) {
                     player.closeInventory();
                 }
 
@@ -187,6 +206,9 @@ public abstract class AbstractAddon {
         }
 
         getApi().getFoliaLib().getScheduler().runLaterAsync(() -> {
+            ClassLoader myLoader = myLoaderRef.get();
+            if (myLoader == null) return;
+
             for (Player player : Bukkit.getOnlinePlayers()) {
                 try {
                     Object activeMenu = menuManager.getActiveMenu(player);
