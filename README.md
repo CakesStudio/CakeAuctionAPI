@@ -1,11 +1,9 @@
 # CakeAuction API
 
-[![GitHub Release](https://img.shields.io/github/release/CakesStudio/CakeAuctionAPI.svg)](https://github.com/CakesStudio/CakeAuctionAPI/releases/latest)
-[![JitPack](https://img.shields.io/jitpack/v/github/CakesStudio/CakeAuctionAPI.svg)](https://jitpack.io/#CakesStudio/CakeAuctionAPI)
-![Java](https://img.shields.io/badge/Java-17-orange)
-![Paper](https://img.shields.io/badge/Paper-1.16.5-blue)
-![Folia](https://img.shields.io/badge/Folia-supported-brightgreen)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub Release](https://img.shields.io/github/release/CakesStudio/CakeAuctionAPI.svg?logo=github)](https://github.com/CakesStudio/CakeAuctionAPI/releases/latest)
+[![JitPack](https://img.shields.io/jitpack/v/github/CakesStudio/CakeAuctionAPI.svg?logo=jitpack)](https://jitpack.io/#CakesStudio/CakeAuctionAPI)
+![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?logo=opensourceinitiative)](LICENSE)
 
 The official developer interface for **CakeAuction**. This API provides a managed environment for building robust addons, interacting with the auction ecosystem, and ensuring cross-platform compatibility.
 
