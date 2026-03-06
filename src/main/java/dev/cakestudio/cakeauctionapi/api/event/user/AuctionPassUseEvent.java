@@ -1,4 +1,6 @@
-package dev.cakestudio.cakeauctionapi.api.event;
+package dev.cakestudio.cakeauctionapi.api.event.user;
+
+import dev.cakestudio.cakeauctionapi.api.event.AuctionEvent;
 
 import lombok.Getter;
 import lombok.NonNull;

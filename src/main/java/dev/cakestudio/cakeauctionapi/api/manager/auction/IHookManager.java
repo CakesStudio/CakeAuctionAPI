@@ -1,4 +1,4 @@
-package dev.cakestudio.cakeauctionapi.api.manager;
+package dev.cakestudio.cakeauctionapi.api.manager.auction;
 
 import org.bukkit.inventory.ItemStack;
 

@@ -1,7 +1,7 @@
 package dev.cakestudio.cakeauctionapi.addon;
 
 import dev.cakestudio.cakeauctionapi.CakeAuctionAPI;
-import dev.cakestudio.cakeauctionapi.api.manager.IMenuManager;
+import dev.cakestudio.cakeauctionapi.api.manager.ui.IMenuManager;
 import dev.cakestudio.cakeauctionapi.api.ICakeAuctionAPI;
 
 import com.tcoded.folialib.wrapper.task.WrappedTask;

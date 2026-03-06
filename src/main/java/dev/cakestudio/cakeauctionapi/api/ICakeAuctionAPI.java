@@ -3,11 +3,13 @@ package dev.cakestudio.cakeauctionapi.api;
 import com.tcoded.folialib.FoliaLib;
 
 import dev.cakestudio.cakeauctionapi.api.data.IAuctionItem;
-import dev.cakestudio.cakeauctionapi.api.manager.IMenuManager;
-import dev.cakestudio.cakeauctionapi.api.manager.IActionManager;
-import dev.cakestudio.cakeauctionapi.api.manager.ITextManager;
-import dev.cakestudio.cakeauctionapi.api.manager.IEconomyManager;
-import dev.cakestudio.cakeauctionapi.api.manager.IHookManager;
+import dev.cakestudio.cakeauctionapi.api.manager.action.*;
+import dev.cakestudio.cakeauctionapi.api.manager.auction.*;
+import dev.cakestudio.cakeauctionapi.api.manager.economy.*;
+import dev.cakestudio.cakeauctionapi.api.manager.system.*;
+import dev.cakestudio.cakeauctionapi.api.manager.ui.*;
+import dev.cakestudio.cakeauctionapi.api.manager.user.*;
+import dev.cakestudio.cakeauctionapi.api.manager.util.*;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,16 +22,88 @@ import java.util.UUID;
 
 /**
  * Main interface for interacting with the CakeAuction system.
- * Provides methods for managing auctions, economy transactions, and plugin components.
+ * Provides access to various managers for managing auctions, economy, users, and core components.
  */
 public interface ICakeAuctionAPI {
+
+    /**
+     * Returns the manager responsible for auction logic, searching, and categories.
+     *
+     * @return The {@link IAuctionManager} instance.
+     */
+    IAuctionManager getAuctionManager();
+
+    /**
+     * Returns the manager responsible for UUID v7 generation and short IDs.
+     *
+     * @return The {@link IUUIDManager} instance.
+     */
+    IUUIDManager getUUIDManager();
+
+    /**
+     * Returns the manager for cross-threaded operations and database tasks.
+     *
+     * @return The {@link IThreadManager} instance.
+     */
+    IThreadManager getThreadManager();
+
+    /**
+     * Returns the manager for ItemStack serialization and unique signatures.
+     *
+     * @return The {@link IItemManager} instance.
+     */
+    IItemManager getItemManager();
+
+    /**
+     * Returns the manager for player statistics, limits, and history.
+     *
+     * @return The {@link IUserManager} instance.
+     */
+    IUserManager getUserManager();
+
+    /**
+     * Returns the manager for networking operations and packets.
+     *
+     * @return The {@link INetworkManager} instance.
+     */
+    INetworkManager getNetworkManager();
+
+    /**
+     * Returns the manager for monitoring system stress and performance.
+     *
+     * @return The {@link IMonitorManager} instance.
+     */
+    IMonitorManager getMonitorManager();
+
+    /**
+     * Returns the manager for database connections and migrations.
+     *
+     * @return The {@link IDatabaseManager} instance.
+     */
+    IDatabaseManager getDatabaseManager();
+
+    /**
+     * Returns the manager for plugin configuration and cached settings.
+     *
+     * @return The {@link IConfigManager} instance.
+     */
+    IConfigManager getConfigManager();
+
+    /**
+     * Returns the manager for plugin assets and menu layouts.
+     *
+     * @return The {@link IAssetManager} instance.
+     */
+    IAssetManager getAssetManager();
 
     /**
      * Retrieves all currently active auction items.
      *
      * @return A collection of active {@link IAuctionItem} instances.
      */
-    Collection<IAuctionItem> getActiveAuctions();
+    default Collection<IAuctionItem> getActiveAuctions() {
+        return getAuctionManager().getActiveAuctions();
+    }
 
     /**
      * Finds an active auction item by its unique identifier.
@@ -37,7 +111,9 @@ public interface ICakeAuctionAPI {
      * @param id The UUID of the auction item.
      * @return An {@link Optional} containing the item if found, otherwise empty.
      */
-    Optional<IAuctionItem> getAuctionById(UUID id);
+    default Optional<IAuctionItem> getAuctionById(UUID id) {
+        return getAuctionManager().getAuctionById(id);
+    }
 
     /**
      * Creates and publishes a new auction lot.

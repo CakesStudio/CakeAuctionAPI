@@ -5,7 +5,7 @@ plugins {
 }
 
 group = (project.hasProperty('group') && project.group != 'unspecified') ? project.group : 'dev.cakestudio'
-version = (project.hasProperty('version') && project.version != 'unspecified') ? project.version : '1.2.4'
+version = (project.hasProperty('version') && project.version != 'unspecified') ? project.version : '1.3'
 
 repositories {
     mavenCentral()

@@ -1,4 +1,6 @@
-package dev.cakestudio.cakeauctionapi.api.event;
+package dev.cakestudio.cakeauctionapi.api.event.auction;
+
+import dev.cakestudio.cakeauctionapi.api.event.AuctionEvent;
 
 import lombok.Getter;
 
@@ -8,7 +10,6 @@ import lombok.Getter;
  */
 @Getter
 public class AuctionItemsLoadedEvent extends AuctionEvent {
-
     private final int totalItems;
     private final long loadTimeMs;
 

@@ -1,7 +1,7 @@
 name: AucAddon
 main: dev.cakestudio.aucaddon.AucAddon
 version: '1.0.0'
-api-version: '1.2.4' # Version CakeAuctionAPI
+api-version: '1.3' # Version CakeAuctionAPI
 folia-supported: true
 description: "Addon for CakeAuction"
 authors: []

@@ -1,7 +1,10 @@
 package dev.cakestudio.cakeauctionapi.api.data;
 
+import net.kyori.adventure.text.Component;
+
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -93,6 +96,30 @@ public interface IAuctionItem {
      * @return The buyer's name or null if not sold.
      */
     String getBuyerName();
+
+    /**
+     * Gets the unique hash of the item data (SHA-1).
+     * Useful for deduplication and fast item comparison.
+     *
+     * @return The item data hash string.
+     */
+    String getItemHash();
+
+    /**
+     * Gets the pre-formatted display name as an Adventure Component.
+     * Utilizes internal caching for maximum performance.
+     *
+     * @return The formatted display name component.
+     */
+    Component getDisplayNameComponent();
+
+    /**
+     * Gets the pre-formatted lore as a list of Adventure Components.
+     * Utilizes internal caching for maximum performance.
+     *
+     * @return An unmodifiable list of formatted lore components.
+     */
+    List<Component> getLoreComponents();
 
     /**
      * Checks if the item can only be purchased as a full stack.

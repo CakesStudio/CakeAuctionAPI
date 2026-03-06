@@ -1,4 +1,4 @@
-package dev.cakestudio.cakeauctionapi.api.manager;
+package dev.cakestudio.cakeauctionapi.api.manager.ui;
 
 import net.kyori.adventure.text.Component;
 

@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Metadata description for a CakeAuction addon.
@@ -38,8 +39,10 @@ public record AddonDescription(
         @NonNull List<String> softDepend
 ) {
 
+    private static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_-]+");
+
     public AddonDescription {
-        if (!name.matches("[a-zA-Z0-9_-]+")) {
+        if (!NAME_PATTERN.matcher(name).matches()) {
             throw new IllegalArgumentException("Invalid addon name: " + name + ". Only a-z, A-Z, 0-9, _ and - are allowed.");
         }
     }

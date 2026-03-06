@@ -1,4 +1,4 @@
-package dev.cakestudio.cakeauctionapi.api.manager;
+package dev.cakestudio.cakeauctionapi.api.manager.action;
 
 import dev.cakestudio.cakeauctionapi.api.action.IAction;
 

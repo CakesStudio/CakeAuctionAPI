@@ -1,5 +1,6 @@
-package dev.cakestudio.cakeauctionapi.api.event;
+package dev.cakestudio.cakeauctionapi.api.event.auction;
 
+import dev.cakestudio.cakeauctionapi.api.event.AuctionCancellableEvent;
 import dev.cakestudio.cakeauctionapi.api.data.IAuctionItem;
 
 import lombok.Getter;

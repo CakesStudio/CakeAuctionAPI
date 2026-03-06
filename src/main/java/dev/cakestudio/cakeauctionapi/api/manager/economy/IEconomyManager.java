@@ -1,4 +1,4 @@
-package dev.cakestudio.cakeauctionapi.api.manager;
+package dev.cakestudio.cakeauctionapi.api.manager.economy;
 
 import org.bukkit.OfflinePlayer;
 
@@ -51,5 +51,13 @@ public interface IEconomyManager {
      */
     @NonNull
     String format(double amount);
+
+    /**
+     * Registers a new custom economy provider to be used by the auction.
+     * After registration, this provider can be selected in the main config or used programmatically.
+     *
+     * @param provider The provider implementation.
+     */
+    void registerProvider(IEconomyProvider provider);
 
 }
