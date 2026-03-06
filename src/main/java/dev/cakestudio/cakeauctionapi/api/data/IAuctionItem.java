@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -134,5 +135,13 @@ public interface IAuctionItem {
      * @return true if active, false otherwise.
      */
     boolean isActive();
+
+    /**
+     * Gets a set of search tags associated with this item.
+     * Tags are used for filtering and categorizing items (e.g., "sword", "diamond", "food").
+     *
+     * @return A collection of lowercase tag strings.
+     */
+    Set<String> getTags();
 
 }

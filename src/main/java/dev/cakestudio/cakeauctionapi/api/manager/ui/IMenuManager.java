@@ -1,5 +1,6 @@
 package dev.cakestudio.cakeauctionapi.api.manager.ui;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
@@ -58,5 +59,26 @@ public interface IMenuManager {
      * @param player The player.
      */
     void unregisterMenu(Player player);
+
+    /**
+     * Updates all active auction menus for all players.
+     */
+    void updateAuctionMenus();
+
+    /**
+     * Opens a view of a player's active auction items for another player.
+     *
+     * @param player The viewer.
+     * @param target The player whose items are being viewed.
+     */
+    void openPlayerItemsView(Player player, OfflinePlayer target);
+
+    /**
+     * Unregisters the menu for a player if it matches the provided menu instance.
+     *
+     * @param player The player.
+     * @param menu   The menu instance to match.
+     */
+    void unregisterMenuIfMatches(Player player, Object menu);
 
 }

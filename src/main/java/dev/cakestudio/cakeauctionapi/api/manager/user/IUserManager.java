@@ -35,15 +35,6 @@ public interface IUserManager {
     void addSale(UUID uuid, int count);
 
     /**
-     * Adds an entry to the player's transaction history.
-     *
-     * @param uuid    The player UUID.
-     * @param message The localized history message.
-     * @param icon    The serialized ItemStack icon for the entry.
-     */
-    void addHistory(UUID uuid, String message, String icon);
-
-    /**
      * Checks if a player has an active auction pass.
      *
      * @param uuid The player UUID.

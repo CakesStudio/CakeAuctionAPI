@@ -1,5 +1,7 @@
 package dev.cakestudio.cakeauctionapi.api.manager.system;
 
+import org.bukkit.inventory.ItemStack;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collection;
@@ -32,5 +34,14 @@ public interface IAssetManager {
      * @param content    The InputStream content.
      */
     void registerAsset(String targetPath, InputStream content);
+
+    /**
+     * Gets the localized name of an ItemStack based on the plugin's language assets.
+     * Supports custom item names from ItemsAdder, if configured.
+     *
+     * @param item The ItemStack to translate.
+     * @return The localized name string.
+     */
+    String getLanguageName(ItemStack item);
 
 }

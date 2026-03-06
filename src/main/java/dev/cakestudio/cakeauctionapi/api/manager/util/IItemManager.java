@@ -3,7 +3,6 @@ package dev.cakestudio.cakeauctionapi.api.manager.util;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Manager for handling ItemStack serialization, generation, and unique signatures.
@@ -53,14 +52,10 @@ public interface IItemManager {
     String getSignature(ItemStack item);
 
     /**
-     * Creates a new ItemStack using the internal item generator, applying placeholders.
+     * Creates a new ItemStack for stress testing using the internal item generator.
      *
-     * @param material     The material name or item key.
-     * @param name         The display name of the item.
-     * @param lore         The lore of the item.
-     * @param placeholders A map of placeholders to be replaced in the name and lore.
-     * @return The generated ItemStack.
+     * @return The generated random ItemStack.
      */
-    ItemStack generateItem(String material, String name, Collection<String> lore, Map<String, String> placeholders);
+    ItemStack generateRandomItem();
 
 }

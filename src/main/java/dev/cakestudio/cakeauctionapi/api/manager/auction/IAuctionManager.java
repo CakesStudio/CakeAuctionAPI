@@ -47,12 +47,27 @@ public interface IAuctionManager {
     Collection<String> getCategories();
 
     /**
+     * Gets a list of all available sorting type identifiers.
+     *
+     * @return A collection of sorting keys (e.g., "PRICE_ASC", "DATE_DESC").
+     */
+    Collection<String> getSortingTypes();
+
+    /**
      * Gets the display name of a category.
      *
      * @param category The category internal name.
      * @return The localized category name.
      */
     String getCategoryDisplayName(String category);
+
+    /**
+     * Gets the icon material name or ID for a category.
+     *
+     * @param category The category internal name.
+     * @return The icon string if available.
+     */
+    String getCategoryIcon(String category);
 
     /**
      * Checks if an item is blacklisted from being sold on the auction.

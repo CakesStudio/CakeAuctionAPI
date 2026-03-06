@@ -58,7 +58,7 @@ dependencies {
     </dependency>
 </dependencies>
 ```
-*(Replace `VERSION` with the target release, e.g., `1.3`)*
+*(Replace `VERSION` with the target release, e.g., `1.3.1`)*
 
 <br/>
 
