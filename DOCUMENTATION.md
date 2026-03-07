@@ -27,7 +27,7 @@ Addons require an `addon.yml` file in the resources directory.
 name: MyAwesomeAddon
 main: com.example.myaddon.MyAddon
 version: 1.0.0
-api-version: '1.3.1'       # Minimum CakeAuctionAPI version required
+api-version: '1.3.2'       # Minimum CakeAuctionAPI version required
 folia-supported: true    # Enable Folia support
 description: "Example description"
 authors: [ "Developer" ]

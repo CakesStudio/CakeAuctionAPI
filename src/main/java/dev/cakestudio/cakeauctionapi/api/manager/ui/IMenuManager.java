@@ -6,6 +6,8 @@ import org.bukkit.entity.Player;
 
 import lombok.NonNull;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Manages plugin GUI menus and player interactions with them.
  */
@@ -17,7 +19,7 @@ public interface IMenuManager {
      * @param player  The player to open the menu for.
      * @param menuId  The unique ID of the menu (defined in configuration).
      */
-    void openMenu(@NonNull Player player, String menuId);
+    void openMenu(@NonNull Player player, @Nullable String menuId);
 
     /**
      * Opens a custom menu provider for a player.

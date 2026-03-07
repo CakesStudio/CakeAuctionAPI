@@ -28,6 +28,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 /**
@@ -40,7 +41,7 @@ public abstract class AbstractAddon {
     private AddonDescription description;
     private ClassLoader classLoader;
     private File dataFolder;
-    @Getter private boolean enabled = false;
+    @Getter private volatile boolean enabled = false;
     private FileConfiguration config = null;
     private File configFile = null;
     private final List<Listener> registeredListeners = new CopyOnWriteArrayList<>();
@@ -101,9 +102,9 @@ public abstract class AbstractAddon {
 
                 logger.info("Enabling " + description.name() + " v" + description.version());
 
-                onEnable();
-
                 this.enabled = true;
+
+                onEnable();
 
             } catch (Exception e) {
                 logger.severe("Error while enabling addon " + description.name() + ": " + e.getMessage());
@@ -181,8 +182,8 @@ public abstract class AbstractAddon {
                     task.cancel();
                 }
             } catch (Exception ignored) {}
+            tasks.remove(task);
         }
-        tasks.clear();
     }
 
     /**
@@ -231,16 +232,17 @@ public abstract class AbstractAddon {
      * @return The {@link WrappedTask} instance.
      */
     protected final WrappedTask runTaskAsync(@NonNull Runnable runnable) {
-        final WrappedTask[] taskRef = new WrappedTask[1];
-        taskRef[0] = getApi().getFoliaLib().getScheduler().runLaterAsync(() -> {
+        final AtomicReference<WrappedTask> taskRef = new AtomicReference<>();
+        taskRef.set(getApi().getFoliaLib().getScheduler().runLaterAsync(() -> {
             try {
                 runnable.run();
             } finally {
-                tasks.remove(taskRef[0]);
+                WrappedTask task = taskRef.get();
+                if (task != null) tasks.remove(task);
             }
-        }, 0L);
-        tasks.add(taskRef[0]);
-        return taskRef[0];
+        }, 0L));
+        tasks.add(taskRef.get());
+        return taskRef.get();
     }
 
     /**
@@ -251,16 +253,17 @@ public abstract class AbstractAddon {
      * @return The {@link WrappedTask} instance.
      */
     protected final WrappedTask runTaskLaterAsync(@NonNull Runnable runnable, long delay) {
-        final WrappedTask[] taskRef = new WrappedTask[1];
-        taskRef[0] = getApi().getFoliaLib().getScheduler().runLaterAsync(() -> {
+        final AtomicReference<WrappedTask> taskRef = new AtomicReference<>();
+        taskRef.set(getApi().getFoliaLib().getScheduler().runLaterAsync(() -> {
             try {
                 runnable.run();
             } finally {
-                tasks.remove(taskRef[0]);
+                WrappedTask task = taskRef.get();
+                if (task != null) tasks.remove(task);
             }
-        }, delay);
-        tasks.add(taskRef[0]);
-        return taskRef[0];
+        }, delay));
+        tasks.add(taskRef.get());
+        return taskRef.get();
     }
 
     /**
@@ -316,7 +319,10 @@ public abstract class AbstractAddon {
      * Reloads the configuration from the file on disk.
      */
     public final void reloadConfig() {
-        if (configFile == null) return;
+        if (configFile == null || !configFile.exists()) {
+            config = new YamlConfiguration();
+            return;
+        }
 
         config = YamlConfiguration.loadConfiguration(configFile);
 
@@ -376,6 +382,15 @@ public abstract class AbstractAddon {
      */
     public final void saveResource(@NonNull String resourcePath, boolean replace) {
         File outFile = new File(dataFolder, resourcePath);
+        
+        try {
+            if (!outFile.getCanonicalPath().startsWith(dataFolder.getCanonicalPath())) {
+                throw new IllegalArgumentException("Path traversal detected in resource path: " + resourcePath);
+            }
+        } catch (IOException e) {
+             throw new IllegalArgumentException("Invalid resource path: " + resourcePath, e);
+        }
+
         if (outFile.exists() && !replace) return;
         
         outFile.getParentFile().mkdirs();

@@ -56,8 +56,16 @@ public record AddonDescription(
     public static AddonDescription load(@NonNull Reader reader) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(reader);
         
-        String name = config.getString("name", "addon.yml is missing 'name'");
-        String main = config.getString("main", "addon.yml is missing 'main'");
+        String name = config.getString("name");
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("addon.yml is missing required field 'name'");
+        }
+
+        String main = config.getString("main");
+        if (main == null || main.isBlank()) {
+            throw new IllegalArgumentException("addon.yml is missing required field 'main'");
+        }
+
         String version = config.getString("version", "1.0.0");
         String apiVersion = config.getString("api-version");
         boolean foliaSupported = config.getBoolean("folia-supported", false);
@@ -67,8 +75,8 @@ public record AddonDescription(
         String author = config.getString("author");
         if (author != null) authors.add(author);
         
-        List<String> depend = config.getStringList("depend");
-        List<String> softDepend = config.getStringList("soft-depend");
+        List<String> depend = config.getStringList("depend").stream().map(String::toLowerCase).toList();
+        List<String> softDepend = config.getStringList("soft-depend").stream().map(String::toLowerCase).toList();
         
         return new AddonDescription(
                 name,
@@ -77,9 +85,9 @@ public record AddonDescription(
                 apiVersion,
                 foliaSupported,
                 desc,
-                Collections.unmodifiableSet(authors),
-                Collections.unmodifiableList(depend),
-                Collections.unmodifiableList(softDepend)
+                Set.copyOf(authors),
+                List.copyOf(depend),
+                List.copyOf(softDepend)
         );
     }
 
