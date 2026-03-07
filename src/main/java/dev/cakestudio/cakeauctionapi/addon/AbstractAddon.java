@@ -106,20 +106,20 @@ public abstract class AbstractAddon {
 
                 onEnable();
 
-            } catch (Exception e) {
-                logger.severe("Error while enabling addon " + description.name() + ": " + e.getMessage());
+            } catch (Throwable t) {
+                this.enabled = false;
+                logger.severe("Error while enabling addon " + description.name() + ": " + t.getMessage());
 
                 try {
-
-                    this.enabled = false;
-
                     onDisable();
+                } catch (Throwable ignored) {}
 
+                try {
                     cleanup();
+                } catch (Throwable ignored) {}
 
-                } catch (Exception ignored) {}
-
-                throw new RuntimeException("Failed to enable addon " + description.name(), e);
+                if (t instanceof RuntimeException re) throw re;
+                throw (Error) t;
             }
         } else {
             this.enabled = false;
@@ -128,11 +128,13 @@ public abstract class AbstractAddon {
 
             try {
                 onDisable();
-            } catch (Exception e) {
-                logger.severe("Error while disabling addon " + description.name() + ": " + e.getMessage());
+            } catch (Throwable t) {
+                logger.severe("Error while disabling addon " + description.name() + ": " + t.getMessage());
             }
 
-            cleanup();
+            try {
+                cleanup();
+            } catch (Throwable ignored) {}
         }
     }
 
