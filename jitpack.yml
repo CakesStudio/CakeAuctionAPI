@@ -1,5 +1,5 @@
 jdk:
-  - openjdk17
+  - temurin17
 
 install:
   - ./gradlew publishToMavenLocal -Pgroup=com.github.CakesStudio
