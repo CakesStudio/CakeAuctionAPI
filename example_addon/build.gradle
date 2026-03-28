@@ -50,6 +50,10 @@ tasks.jar {
 tasks.shadowJar {
     archiveFileName.set("AucAddon-${version}.jar")
     destinationDirectory.set(layout.projectDirectory)
+
+    // Relocate to match CakeAuction internal structure
+    relocate 'net.kyori', 'dev.cakestudio.cakeauction.libs.kyori'
+    relocate 'com.tcoded.folialib', 'dev.cakestudio.cakeauction.libs.folialib'
 }
 
 build.dependsOn shadowJar

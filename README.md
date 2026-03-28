@@ -64,16 +64,20 @@ dependencies {
 
 ## 📦 Library Relocation & Dependencies
 CakeAuction core relocates its internal libraries (like **Adventure API** and **FoliaLib**) to prevent version conflicts.
+Because of this, your addon **MUST relocate** these libraries to match the internal package of CakeAuction.
 
 > [!CAUTION]
-> **DO NOT relocate** these libraries in your addon!
-> The CakeAuction API uses original package names (`net.kyori`, `com.tcoded.folialib`). The core plugin automatically handles the translation between your addon's calls and its internal relocated libraries.
+> **Why?** If you don't relocate, your addon will use `net.kyori` package, but CakeAuction API methods (which are part of the core JAR) are already transformed to use relocated packages. This will lead to `NoSuchMethodError` at runtime.
 
-Simply use `compileOnly` for these dependencies in your `build.gradle`:
+Simply use `compileOnly` for these dependencies in your `build.gradle` and **always relocate** them:
 
-**Recommended build.gradle setup:**
+**Correct build.gradle setup (Addon):**
 ```gradle
 dependencies {
+    // API dependency
+    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:VERSION'
+
+    // Core libraries used by API (must be compileOnly)
     compileOnly "com.tcoded:FoliaLib:0.5.1"
     compileOnly 'net.kyori:adventure-platform-bukkit:4.4.1'
     compileOnly 'net.kyori:adventure-text-minimessage:4.26.1'
@@ -82,8 +86,9 @@ dependencies {
 }
 
 tasks.shadowJar {
-    // Only relocate your private dependencies that you implementation/shade into your JAR.
-    // NEVER relocate net.kyori or com.tcoded.
+    // Relocate to match CakeAuction internal structure
+    relocate 'net.kyori', 'dev.cakestudio.cakeauction.libs.kyori'
+    relocate 'com.tcoded.folialib', 'dev.cakestudio.cakeauction.libs.folialib'
 }
 ```
 
