@@ -1,5 +1,7 @@
 package dev.cakestudio.cakeauctionapi.api.manager.auction;
 
+import lombok.NonNull;
+
 import org.bukkit.inventory.ItemStack;
 
 import org.jetbrains.annotations.Nullable;
@@ -26,5 +28,19 @@ public interface IHookManager {
      */
     @Nullable
     String getItemId(@Nullable ItemStack item);
+
+    /**
+     * Registers a custom item hook provider (e.g., Oraxen, MMOItems).
+     *
+     * @param provider The provider instance to register.
+     */
+    void registerProvider(@NonNull IItemHookProvider provider);
+
+    /**
+     * Unregisters a custom item hook provider.
+     *
+     * @param provider The provider instance to unregister.
+     */
+    void unregisterProvider(@NonNull IItemHookProvider provider);
 
 }

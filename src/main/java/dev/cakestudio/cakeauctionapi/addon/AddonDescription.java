@@ -7,7 +7,6 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Reader;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +19,8 @@ import java.util.regex.Pattern;
  * @param name           The unique name of the addon.
  * @param mainClass      The fully qualified name of the main class.
  * @param version        The version string of the addon.
- * @param apiVersion     The version of the CakeAuction API the addon is built for.
+ * @param apiVersion     The version of the CakeAuction API the addon is built
+ *                       for.
  * @param foliaSupported Whether the addon supports the Folia server software.
  * @param description    A brief description of the addon's purpose.
  * @param authors        A set of authors who contributed to the addon.
@@ -36,14 +36,14 @@ public record AddonDescription(
         @Nullable String description,
         @NonNull Set<String> authors,
         @NonNull List<String> depend,
-        @NonNull List<String> softDepend
-) {
+        @NonNull List<String> softDepend) {
 
     private static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_-]+");
 
     public AddonDescription {
         if (!NAME_PATTERN.matcher(name).matches()) {
-            throw new IllegalArgumentException("Invalid addon name: " + name + ". Only a-z, A-Z, 0-9, _ and - are allowed.");
+            throw new IllegalArgumentException(
+                    "Invalid addon name: " + name + ". Only a-z, A-Z, 0-9, _ and - are allowed.");
         }
     }
 
@@ -55,7 +55,7 @@ public record AddonDescription(
      */
     public static AddonDescription load(@NonNull Reader reader) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(reader);
-        
+
         String name = config.getString("name");
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("addon.yml is missing required field 'name'");
@@ -70,14 +70,15 @@ public record AddonDescription(
         String apiVersion = config.getString("api-version");
         boolean foliaSupported = config.getBoolean("folia-supported", false);
         String desc = config.getString("description");
-        
+
         Set<String> authors = new HashSet<>(config.getStringList("authors"));
         String author = config.getString("author");
-        if (author != null) authors.add(author);
-        
+        if (author != null)
+            authors.add(author);
+
         List<String> depend = config.getStringList("depend").stream().map(String::toLowerCase).toList();
         List<String> softDepend = config.getStringList("soft-depend").stream().map(String::toLowerCase).toList();
-        
+
         return new AddonDescription(
                 name,
                 main,
@@ -87,8 +88,7 @@ public record AddonDescription(
                 desc,
                 Set.copyOf(authors),
                 List.copyOf(depend),
-                List.copyOf(softDepend)
-        );
+                List.copyOf(softDepend));
     }
 
 }

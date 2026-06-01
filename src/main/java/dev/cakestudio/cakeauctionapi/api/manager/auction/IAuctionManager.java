@@ -2,88 +2,134 @@ package dev.cakestudio.cakeauctionapi.api.manager.auction;
 
 import dev.cakestudio.cakeauctionapi.api.data.IAuctionItem;
 
+import lombok.NonNull;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.function.Predicate;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Manager for advanced auction operations, searching, filtering, and category management.
+ * Manager for advanced auction operations, searching, filtering, and category
+ * management.
  */
 public interface IAuctionManager {
 
-    /**
-     * Gets all active auction items.
-     *
-     * @return A collection of items currently on sale.
-     */
-    Collection<IAuctionItem> getActiveAuctions();
+        /**
+         * Gets all active auction items.
+         *
+         * @return A collection of items currently on sale.
+         */
+        Collection<IAuctionItem> getActiveAuctions();
 
-    /**
-     * Gets an auction item by its ID.
-     *
-     * @param id The item UUID.
-     * @return An Optional containing the item if found.
-     */
-    Optional<IAuctionItem> getAuctionById(UUID id);
+        /**
+         * Gets an auction item by its ID.
+         *
+         * @param id The item UUID.
+         * @return An Optional containing the item if found.
+         */
+        Optional<IAuctionItem> getAuctionById(UUID id);
 
-    /**
-     * Searches for auction items using a text query and filters.
-     *
-     * @param query       The search text (e.g., item name).
-     * @param category    The category name filter, or null for all categories.
-     * @param sortType    The sorting algorithm name (e.g., "price_asc", "newest").
-     * @return A collection of matching items.
-     */
-    Collection<IAuctionItem> search(String query, String category, String sortType);
+        /**
+         * Searches for auction items using a text query and filters.
+         *
+         * @param query    The search text (e.g., item name).
+         * @param category The category name filter, or null for all categories.
+         * @param sortType The sorting algorithm name (e.g., "price_asc", "newest").
+         * @return A collection of matching items.
+         */
+        Collection<IAuctionItem> search(String query, String category, String sortType);
 
-    /**
-     * Gets a list of all registered auction categories.
-     *
-     * @return A collection of category internal names.
-     */
-    Collection<String> getCategories();
+        /**
+         * Gets a list of all registered auction categories.
+         *
+         * @return A collection of category internal names.
+         */
+        Collection<String> getCategories();
 
-    /**
-     * Gets a list of all available sorting type identifiers.
-     *
-     * @return A collection of sorting keys (e.g., "PRICE_ASC", "DATE_DESC").
-     */
-    Collection<String> getSortingTypes();
+        /**
+         * Gets a list of all available sorting type identifiers.
+         *
+         * @return A collection of sorting keys (e.g., "PRICE_ASC", "DATE_DESC").
+         */
+        Collection<String> getSortingTypes();
 
-    /**
-     * Gets the display name of a category.
-     *
-     * @param category The category internal name.
-     * @return The localized category name.
-     */
-    String getCategoryDisplayName(String category);
+        /**
+         * Gets the display name of a category.
+         *
+         * @param category The category internal name.
+         * @return The localized category name.
+         */
+        String getCategoryDisplayName(String category);
 
-    /**
-     * Gets the icon material name or ID for a category.
-     *
-     * @param category The category internal name.
-     * @return The icon string if available.
-     */
-    String getCategoryIcon(String category);
+        /**
+         * Gets the icon material name or ID for a category.
+         *
+         * @param category The category internal name.
+         * @return The icon string if available.
+         */
+        String getCategoryIcon(String category);
 
-    /**
-     * Checks if an item is blacklisted from being sold on the auction.
-     *
-     * @param item The item to check.
-     * @return true if blacklisted.
-     */
-    boolean isBlacklisted(ItemStack item);
+        /**
+         * Checks if an item is blacklisted from being sold on the auction.
+         *
+         * @param item The item to check.
+         * @return true if blacklisted.
+         */
+        boolean isBlacklisted(ItemStack item);
 
-    /**
-     * Calculates the tax for a given price.
-     *
-     * @param player The seller player (for permission-based tax).
-     * @param price  The sale price.
-     * @return The calculated tax amount.
-     */
-    double calculateTax(Player player, double price);
+        /**
+         * Calculates the tax for a given price.
+         *
+         * @param player The seller player (for permission-based tax).
+         * @param price  The sale price.
+         * @return The calculated tax amount.
+         */
+        double calculateTax(Player player, double price);
+
+        /**
+         * Registers a custom category with a dynamic predicate filter.
+         *
+         * @param name        The unique category identifier key (e.g.,
+         *                    "my_epic_items").
+         * @param displayName The display name of the category (supports MiniMessage).
+         * @param icon        The item stack to display as the category icon in GUI.
+         * @param filter      The predicate filter to match items.
+         */
+        void registerCategory(
+                        @NonNull String name,
+                        @NonNull String displayName,
+                        @NonNull ItemStack icon,
+                        @NonNull Predicate<ItemStack> filter);
+
+        /**
+         * Unregisters a dynamically registered custom category.
+         *
+         * @param name The category key to unregister.
+         */
+        void unregisterCategory(@NonNull String name);
+
+        /**
+         * Registers a custom sorting algorithm comparator.
+         *
+         * @param id          The unique sorting identifier (e.g., "name_desc").
+         * @param displayName The display name of the sorting option.
+         * @param comparator  The comparator to sort auction items.
+         */
+        void registerSortingType(
+                        @NonNull String id,
+                        @NonNull String displayName,
+                        @NonNull Comparator<IAuctionItem> comparator);
+
+        /**
+         * Unregisters a custom sorting option.
+         *
+         * @param id The sorting identifier to unregister.
+         */
+        void unregisterSortingType(@NonNull String id);
 
 }

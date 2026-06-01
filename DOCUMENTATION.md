@@ -27,7 +27,7 @@ Addons require an `addon.yml` file in the resources directory.
 name: MyAwesomeAddon
 main: com.example.myaddon.MyAddon
 version: 1.0.0
-api-version: '1.3.7'       # Minimum CakeAuctionAPI version required
+api-version: '1.5.0'       # Minimum CakeAuctionAPI version required
 folia-supported: true    # Enable Folia support
 description: "Example description"
 authors: [ "Developer" ]
@@ -113,6 +113,37 @@ api.createAuction(player, itemStack, 500.0, 3600L, false);
 
 // Buy an item programmatically
 api.buyItem(player, auctionItem);
+```
+
+#### 📁 Dynamic Categories
+Addons can register custom categories using dynamic predicate filters:
+```java
+ItemStack icon = new ItemStack(org.bukkit.Material.GOLDEN_APPLE);
+auction.registerCategory(
+    "mythic_gear",
+    "<gradient:#ffd700:#ff4500>Mythic Gear</gradient>",
+    icon,
+    itemStack -> {
+        if (itemStack == null || !itemStack.hasItemMeta()) return false;
+        return itemStack.getItemMeta().getDisplayName().contains("Mythic");
+    }
+);
+
+// Unregister when disabling
+auction.unregisterCategory("mythic_gear");
+```
+
+#### 📊 Custom Sorting Algorithms
+Addons can register custom sorting rules using `Comparator<IAuctionItem>`:
+```java
+auction.registerSortingType(
+    "seller_name_length",
+    "<aqua>Seller Name Length</aqua>",
+    Comparator.comparingInt(item -> item.getSellerName().length())
+);
+
+// Unregister when disabling
+auction.unregisterSortingType("seller_name_length");
 ```
 
 ### 🆔 UUID & Identification API
@@ -254,7 +285,7 @@ IActionManager actionManager = CakeAuctionAPI.getApi().getActionManager();
 // Register a custom action tag: [GIVE_REWARD]
 actionManager.registerAction("GIVE_REWARD", (player, location, parsedText) -> {
     // parsedText is the string after the tag in the config
-    player.sendMessage("§aYou received a reward: §f" + parsedText);
+    player.sendMessage("You received a reward: " + parsedText);
 });
 ```
 
@@ -377,6 +408,40 @@ ItemStack customItem = hooks.getItem("itemsadder:ruby");
 
 // Get the unique ID of an item
 String id = hooks.getItemId(someItemStack);
+```
+
+### 🔌 Custom Item Hook Providers
+Addons can register custom item providers (e.g. for plugins like Oraxen, MMOItems or custom solutions) to dynamically resolve custom item IDs.
+
+```java
+// Register custom provider
+IItemHookProvider provider = new IItemHookProvider() {
+    @Override
+    public @Nullable ItemStack getItem(@NonNull String id) {
+        if (id.equalsIgnoreCase("ruby_gem")) {
+            return new ItemStack(Material.EMERALD); // or custom itemsadder/oraxen stack
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable String getItemId(@NonNull ItemStack item) {
+        if (item.getType() == Material.EMERALD) {
+            return "ruby_gem";
+        }
+        return null;
+    }
+
+    @Override
+    public @NonNull String getPrefix() {
+        return "myprovider"; // Matches queries like "myprovider:ruby_gem"
+    }
+};
+
+hooks.registerProvider(provider);
+
+// Unregister when disabling
+hooks.unregisterProvider(provider);
 ```
 
 <br/>
