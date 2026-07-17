@@ -2,6 +2,7 @@
 *.env
 .env
 # User-specific stuff
+gradle.properties
 .idea/
 *.iml
 *.ipr
