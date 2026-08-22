@@ -127,6 +127,20 @@ public interface ICakeAuctionAPI {
     void createAuction(Player seller, ItemStack item, double price, long durationSeconds, boolean onlyFull);
 
     /**
+     * Creates and publishes a new auction lot with a specific currency.
+     *
+     * @param seller          The player selling the item.
+     * @param item            The ItemStack to be sold.
+     * @param price           The total price of the lot.
+     * @param currencyId      The currency identifier (e.g. "vault", "playerpoints").
+     * @param durationSeconds The duration of the auction in seconds.
+     * @param onlyFull        Whether the item can only be bought as a whole stack.
+     */
+    default void createAuction(Player seller, ItemStack item, double price, String currencyId, long durationSeconds, boolean onlyFull) {
+        createAuction(seller, item, price, durationSeconds, onlyFull);
+    }
+
+    /**
      * Performs a full purchase of an auction item.
      *
      * @param buyer The player purchasing the item.
@@ -200,6 +214,15 @@ public interface ICakeAuctionAPI {
      * @return The {@link IEconomyManager} instance.
      */
     IEconomyManager getEconomyManager();
+
+    /**
+     * Returns the manager responsible for auction taxation and commission schedules.
+     *
+     * @return The {@link ITaxManager} instance.
+     */
+    default ITaxManager getTaxManager() {
+        return null;
+    }
 
     /**
      * Returns the manager responsible for external plugin hooks.

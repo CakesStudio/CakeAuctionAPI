@@ -45,6 +45,19 @@ public interface IAuctionManager {
         Collection<IAuctionItem> search(String query, String category, String sortType);
 
         /**
+         * Searches for auction items using a text query, category, currency, and sort filter.
+         *
+         * @param query      The search text (e.g., item name).
+         * @param category   The category name filter, or null for all categories.
+         * @param currencyId The currency identifier, or null for all currencies.
+         * @param sortType   The sorting algorithm name.
+         * @return A collection of matching items.
+         */
+        default Collection<IAuctionItem> search(String query, String category, String currencyId, String sortType) {
+                return search(query, category, sortType);
+        }
+
+        /**
          * Gets a list of all registered auction categories.
          *
          * @return A collection of category internal names.
@@ -90,6 +103,18 @@ public interface IAuctionManager {
          * @return The calculated tax amount.
          */
         double calculateTax(Player player, double price);
+
+        /**
+         * Calculates the tax for a given price and currency.
+         *
+         * @param player     The seller player (for permission-based tax).
+         * @param price      The sale price.
+         * @param currencyId The currency identifier.
+         * @return The calculated tax amount.
+         */
+        default double calculateTax(Player player, double price, String currencyId) {
+                return calculateTax(player, price);
+        }
 
         /**
          * Registers a custom category with a dynamic predicate filter.

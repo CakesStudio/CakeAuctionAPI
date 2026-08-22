@@ -27,7 +27,7 @@ Addons require an `addon.yml` file in the resources directory.
 name: MyAwesomeAddon
 main: com.example.myaddon.MyAddon
 version: 1.0.0
-api-version: '1.5.0'       # Minimum CakeAuctionAPI version required
+api-version: '1.6.0'       # Minimum CakeAuctionAPI version required
 folia-supported: true    # Enable Folia support
 description: "Example description"
 authors: [ "Developer" ]
@@ -94,25 +94,43 @@ IAuctionManager auction = api.getAuctionManager();
 // Get active auctions
 Collection<IAuctionItem> items = auction.getActiveAuctions();
 
-// Advanced Search (Query, Category, Sort)
-Collection<IAuctionItem> results = auction.search("Diamond", "Resources", "price_asc");
+// Advanced Search (Query, Category, Currency, Sort)
+Collection<IAuctionItem> results = auction.search("Diamond", "Resources", "vault", "price_asc");
 
 // Check if auction items are fully loaded from database
 if (api.isAuctionLoaded()) {
     // Safe to perform analytics or bulk operations
 }
 
-// Calculate tax based on player permissions and price
-double tax = auction.calculateTax(player, 1000.0);
+// Calculate tax based on player permissions, price, and currency
+double tax = auction.calculateTax(player, 1000.0, "vault");
 
 // Check if an item is forbidden from being sold
 if (auction.isBlacklisted(itemStack)) { ... }
 
-// Create a new auction lot
-api.createAuction(player, itemStack, 500.0, 3600L, false);
+// Create a new auction lot with currency
+api.createAuction(player, itemStack, 500.0, "vault", 3600L, false);
 
 // Buy an item programmatically
 api.buyItem(player, auctionItem);
+```
+
+#### 🏛️ Tax Manager (`ITaxManager`)
+Manage tax rates, commission modes, and dynamic schedules:
+```java
+ITaxManager taxManager = api.getTaxManager();
+
+if (taxManager.isTaxEnabled()) {
+    // Get tax rate percentage for specific currency
+    double rate = taxManager.getTaxRate(player, "playerpoints"); // e.g. 5.0 (5%)
+
+    // Get seller or buyer specific commission rates
+    double sellerRate = taxManager.getSellerTaxRate(player, "vault");
+    double buyerRate = taxManager.getBuyerTaxRate(player, "vault");
+
+    // Active schedule ID (e.g., "night_discount", "weekend_free", or "none")
+    String schedule = taxManager.getActiveScheduleId(player);
+}
 ```
 
 #### 📁 Dynamic Categories
@@ -197,17 +215,21 @@ Access to player statistics, limits, and historical records.
 ```java
 IUserManager userManager = api.getUserManager();
 
-// Check listing limits
-if (userManager.isLimitReached(player)) {
-    player.sendMessage("Limit reached!");
+// Check listing limits (globally or per currency)
+if (userManager.isLimitReached(player, "playerpoints")) {
+    player.sendMessage("Limit reached for PlayerPoints!");
 }
+
+int totalMaxSlots = userManager.getMaxSlots(player);
+int curMaxSlots = userManager.getMaxSlots(player, "playerpoints");
+long duration = userManager.getSellDuration(player, "playerpoints");
 
 // Access stats and passes
 boolean hasPass = userManager.hasActivePass(player.getUniqueId());
 String subscription = userManager.getSubscriptionName(player.getUniqueId());
 
 // Log history entry
-userManager.addHistory(player.getUniqueId(), "Bought a Diamond", itemManager.serialize(diamond));
+userManager.addSale(player.getUniqueId(), 1);
 ```
 
 ### 📊 System Monitoring API

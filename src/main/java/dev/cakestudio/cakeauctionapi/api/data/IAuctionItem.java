@@ -144,4 +144,22 @@ public interface IAuctionItem {
      */
     Set<String> getTags();
 
+    /**
+     * Gets the currency identifier of this auction lot.
+     *
+     * @return The currency ID (e.g., "vault", "playerpoints").
+     */
+    default String getEconomyId() {
+        return "vault";
+    }
+
+    /**
+     * Alias for {@link #getEconomyId()}.
+     *
+     * @return The currency ID.
+     */
+    default String getCurrencyId() {
+        return getEconomyId();
+    }
+
 }
