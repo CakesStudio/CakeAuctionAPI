@@ -1,5 +1,8 @@
 package dev.cakestudio.cakeauctionapi.api.manager.system;
 
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 /**
  * Manager for system monitoring, performance metrics, and safety checks.
  * Provides tools for logging, detecting resource leaks, and analyzing performance stress.
@@ -40,5 +43,33 @@ public interface IMonitorManager {
      * @return true if the operation is safe to proceed, false if it should be delayed or cancelled.
      */
     boolean isSafe(String context);
+
+    /**
+     * Opens the interactive system status GUI menu for a player.
+     *
+     * @param player The player.
+     */
+    default void openStatusMenu(Player player) {}
+
+    /**
+     * Sends the text-based status report to a command sender or console.
+     *
+     * @param sender The sender.
+     */
+    default void sendStatusReport(CommandSender sender) {}
+
+    /**
+     * Checks if a stress test is currently running.
+     *
+     * @return true if running, false otherwise.
+     */
+    default boolean isStressTestRunning() {
+        return false;
+    }
+
+    /**
+     * Stops the currently running stress test if one is active.
+     */
+    default void stopStressTest() {}
 
 }

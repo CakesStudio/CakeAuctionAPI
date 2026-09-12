@@ -4,6 +4,9 @@ import org.bukkit.OfflinePlayer;
 
 import lombok.NonNull;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Interface for economy management, abstracting the underlying provider (Vault, etc.).
  */
@@ -129,6 +132,34 @@ public interface IEconomyManager {
     @NonNull
     default String format(@NonNull String currencyId, double amount) {
         return amount + " " + currencyId;
+    }
+
+    /**
+     * Gets the current auction operation mode (e.g. "SINGLE_CURRENCY" or
+     * "MULTI_CURRENCY").
+     *
+     * @return The active auction mode string.
+     */
+    default String getAuctionMode() {
+        return "SINGLE_CURRENCY";
+    }
+
+    /**
+     * Gets the ID of the default primary currency (e.g. "vault").
+     *
+     * @return The default currency identifier.
+     */
+    default String getDefaultCurrencyId() {
+        return "vault";
+    }
+
+    /**
+     * Gets all registered currency identifiers available on the server.
+     *
+     * @return Collection of currency IDs.
+     */
+    default Collection<String> getSupportedCurrencies() {
+        return Collections.emptyList();
     }
 
     /**

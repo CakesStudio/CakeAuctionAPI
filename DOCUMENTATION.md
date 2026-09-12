@@ -1,158 +1,138 @@
-# CakeAuction API Detailed Documentation
+# CakeAuction API Reference
 
-This document is the exhaustive reference for **CakeAuction** developers. It covers the managed addon system, every manager, the event system, and technical requirements.
+Technical documentation and developer reference for **CakeAuction** (Minecraft Paper and Folia).
 
 ---
 
-## 🛠️ Core API Access
-The entry point for all API interactions. Access it via `CakeAuctionAPI.getApi()`.
+## API Entry Point
+
+The entry point for all API interactions is `CakeAuctionAPI.getApi()`.
 
 ```java
 ICakeAuctionAPI api = CakeAuctionAPI.getApi();
 
-// Check if the auction database is fully loaded into cache
+// Check if auction database cache is loaded
 if (api.isAuctionLoaded()) {
-    // Safe to perform bulk operations or analytics
+    // Safe to perform bulk operations and queries
 }
+
+// Create auction lot with specified currency
+api.createAuction(player, itemStack, 1500.0, "vault", 86400L, false);
+
+// Purchase an active auction item
+api.buyItem(buyer, auctionItem);
+
+// Reclaim or cancel an active lot
+api.cancelAuction(seller, auctionItem);
 ```
 
 ---
 
-## 🧩 Managed Addon System
+## Addon System
 
-### 1. Metadata (`addon.yml`)
-Addons require an `addon.yml` file in the resources directory.
+CakeAuction loads and manages addons located in `plugins/CakeAuction/addons/`.
+
+### Metadata (addon.yml)
+Place `addon.yml` in `src/main/resources`:
 
 ```yaml
-name: MyAwesomeAddon
-main: com.example.myaddon.MyAddon
+name: CustomAuctionAddon
+main: com.example.addon.CustomAddon
 version: 1.0.0
-api-version: '1.6.0'       # Minimum CakeAuctionAPI version required
-folia-supported: true    # Enable Folia support
-description: "Example description"
+api-version: '1.6.1'
+folia-supported: true
+description: "Custom CakeAuction addon"
 authors: [ "Developer" ]
-depend: []               # Hard dependencies
-soft-depend: []          # Optional dependencies
+depend: []
+soft-depend: []
 ```
 
-### 2. Implementation
-Extend `AbstractAddon` to hook into the managed lifecycle.
+### Main Class (AbstractAddon)
+Addon main classes must extend `AbstractAddon`. Listeners, commands, tasks, and menus registered through it are automatically cleaned up when the addon is disabled.
 
 ```java
-public class MyAddon extends AbstractAddon {
+public class CustomAddon extends AbstractAddon {
     @Override
     protected void onEnable() {
-        saveDefaultConfig(); // Config will be in /plugins/CakeAuction/addons/MyAddon/
-        
-        // Automated resource management
+        saveDefaultConfig();
         registerListener(new MyListener());
         registerCommand(new MyCommand());
     }
 
     @Override
     protected void onDisable() {
-        // disable
+        // Optional custom cleanup logic
     }
 }
 ```
 
-> [!IMPORTANT]
-> **Automated Cleanup:** Upon disabling, CakeAuction automatically:
-> - Unregisters all listeners registered via `registerListener`.
-> - Removes all commands registered via `registerCommand`.
-> - Cancels all tasks scheduled via `runTask*` methods.
-> - Closes all GUI menus opened by this addon.
+---
 
-<br/>
+## Concurrency and Schedulers
 
-## ⚡ Concurrency & Schedulers
-CakeAuction provides a wrapper for **FoliaLib**. It is mandatory to use the internal scheduler methods to ensure safety across Paper, Spigot, and Folia.
+CakeAuction bundles `FoliaLib` for compatibility with Paper and Folia regional threading. Use `AbstractAddon` scheduler methods rather than `Bukkit.getScheduler()`:
 
 ```java
-// Safe asynchronous execution (Auto-cleanup on disable)
+// Asynchronous task
 runTaskAsync(() -> {
-    // Background logic
+    // Background execution
 });
 
-// Region-aware tasks
-runTaskLaterAsync(() -> { ... }, 20L);
-runTaskTimerAsync(() -> { ... }, 0L, 100L);
+// Asynchronous task with delay
+runTaskLaterAsync(() -> {
+    // Execution after 20 ticks
+}, 20L);
+
+// Asynchronous repeating timer
+runTaskTimerAsync(() -> {
+    // Repeated execution every 100 ticks
+}, 0L, 100L);
 ```
 
-<br/>
+---
 
-## 🛠️ Core API Usage
+## API Managers
 
-Access the API via `CakeAuctionAPI.getApi()`.
+### IAuctionManager
+Manages active lots, categories, and custom sorting algorithms.
 
-### ⚖️ Auction Manager (`IAuctionManager`)
-Core auction logic, searching, and categories.
 ```java
-ICakeAuctionAPI api = CakeAuctionAPI.getApi();
 IAuctionManager auction = api.getAuctionManager();
 
-// Get active auctions
-Collection<IAuctionItem> items = auction.getActiveAuctions();
+// Retrieve all active auction items
+Collection<IAuctionItem> active = auction.getActiveAuctions();
 
-// Advanced Search (Query, Category, Currency, Sort)
-Collection<IAuctionItem> results = auction.search("Diamond", "Resources", "vault", "price_asc");
+// Search items with query, category filter, currency, and sort algorithm
+Collection<IAuctionItem> results = auction.search("Netherite", "Weapons", "vault", "price_asc");
 
-// Check if auction items are fully loaded from database
-if (api.isAuctionLoaded()) {
-    // Safe to perform analytics or bulk operations
-}
-
-// Calculate tax based on player permissions, price, and currency
-double tax = auction.calculateTax(player, 1000.0, "vault");
-
-// Check if an item is forbidden from being sold
-if (auction.isBlacklisted(itemStack)) { ... }
-
-// Create a new auction lot with currency
-api.createAuction(player, itemStack, 500.0, "vault", 3600L, false);
-
-// Buy an item programmatically
-api.buyItem(player, auctionItem);
-```
-
-#### 🏛️ Tax Manager (`ITaxManager`)
-Manage tax rates, commission modes, and dynamic schedules:
-```java
-ITaxManager taxManager = api.getTaxManager();
-
-if (taxManager.isTaxEnabled()) {
-    // Get tax rate percentage for specific currency
-    double rate = taxManager.getTaxRate(player, "playerpoints"); // e.g. 5.0 (5%)
-
-    // Get seller or buyer specific commission rates
-    double sellerRate = taxManager.getSellerTaxRate(player, "vault");
-    double buyerRate = taxManager.getBuyerTaxRate(player, "vault");
-
-    // Active schedule ID (e.g., "night_discount", "weekend_free", or "none")
-    String schedule = taxManager.getActiveScheduleId(player);
+// Check blacklist status
+if (auction.isBlacklisted(itemStack)) {
+    // Item cannot be sold on auction
 }
 ```
 
-#### 📁 Dynamic Categories
-Addons can register custom categories using dynamic predicate filters:
+#### Dynamic Categories
+Register custom categories with predicate-based filters:
+
 ```java
-ItemStack icon = new ItemStack(org.bukkit.Material.GOLDEN_APPLE);
+ItemStack icon = new ItemStack(Material.NETHERITE_SWORD);
 auction.registerCategory(
-    "mythic_gear",
-    "<gradient:#ffd700:#ff4500>Mythic Gear</gradient>",
+    "legendary_weapons",
+    "<gradient:#ff0000:#ff8800>Legendary</gradient>",
     icon,
     itemStack -> {
         if (itemStack == null || !itemStack.hasItemMeta()) return false;
-        return itemStack.getItemMeta().getDisplayName().contains("Mythic");
+        return itemStack.getItemMeta().getDisplayName().contains("Legendary");
     }
 );
 
-// Unregister when disabling
-auction.unregisterCategory("mythic_gear");
+// Unregister on addon disable
+auction.unregisterCategory("legendary_weapons");
 ```
 
-#### 📊 Custom Sorting Algorithms
-Addons can register custom sorting rules using `Comparator<IAuctionItem>`:
+#### Custom Sorting
+Register custom sorting criteria using `Comparator<IAuctionItem>`:
+
 ```java
 auction.registerSortingType(
     "seller_name_length",
@@ -160,288 +140,186 @@ auction.registerSortingType(
     Comparator.comparingInt(item -> item.getSellerName().length())
 );
 
-// Unregister when disabling
+// Unregister on addon disable
 auction.unregisterSortingType("seller_name_length");
 ```
 
-### 🆔 UUID & Identification API
-Managed UUID v7 generation for time-ordered identifiers and short Base62 IDs.
-```java
-IUUIDManager uuid = api.getUUIDManager();
+---
 
-// Generate a standard UUID v7 (Time-ordered)
-UUID random = uuid.random();
-
-// Generate a custom UUID v7 with server identifier (prevent collisions)
-UUID serverId = uuid.generate("lobby-1");
-
-// Convert UUID to a short 10-11 character ID
-String shortId = uuid.toShortId(random); // e.g., "7x2K9mPq1z"
-```
-
-### 🧵 Threading & Async API
-Wrappers for safe multi-threaded operations, including dedicated database executors.
-```java
-IThreadManager threads = api.getThreadManager();
-
-// Run on main thread (Region-aware on Folia)
-threads.runSync(() -> player.sendMessage("Sync!"));
-
-// Run database operation with UI callback
-threads.runDatabaseOperation(
-    () -> someHeavyDbQuery(), // Async
-    (result) -> player.sendMessage("Data: " + result) // Sync callback
-);
-```
-
-### 📦 Item Serialization & Signatures
-High-level ItemStack handling for persistence and unique identification.
-```java
-IItemManager itemManager = api.getItemManager();
-
-// Serialize/Deserialize Base64
-String base64 = itemManager.serialize(itemStack);
-ItemStack restored = itemManager.deserialize(base64);
-
-// Generate unique digital signatures (for dupe detection)
-String signature = itemManager.getSignature(itemStack);
-
-// Generate items from config material/lore with placeholders
-ItemStack generated = itemManager.generateItem("DIAMOND_SWORD", "&bExcalibur", List.of("&7Owner: {player}"), Map.of("{player}", player.getName()));
-```
-
-### 👤 User Data API
-Access to player statistics, limits, and historical records.
-```java
-IUserManager userManager = api.getUserManager();
-
-// Check listing limits (globally or per currency)
-if (userManager.isLimitReached(player, "playerpoints")) {
-    player.sendMessage("Limit reached for PlayerPoints!");
-}
-
-int totalMaxSlots = userManager.getMaxSlots(player);
-int curMaxSlots = userManager.getMaxSlots(player, "playerpoints");
-long duration = userManager.getSellDuration(player, "playerpoints");
-
-// Access stats and passes
-boolean hasPass = userManager.hasActivePass(player.getUniqueId());
-String subscription = userManager.getSubscriptionName(player.getUniqueId());
-
-// Log history entry
-userManager.addSale(player.getUniqueId(), 1);
-```
-
-### 📊 System Monitoring API
-Tools for performance metrics, stress detection, and resource safety.
-```java
-IMonitorManager monitor = api.getMonitorManager();
-
-// Check if server is under high stress
-if (monitor.isUnderStress()) {
-    // Reduce heavy tasks
-}
-
-// Log to internal system log
-monitor.log("MyAddon", "Performing heavy migration...");
-
-// Check if an operation is safe to run
-if (monitor.isSafe("database_backup")) {
-    // Proceed
-}
-```
-
-### 🗄️ Database & Migration API
-Direct access to database connections for custom queries and migrations.
-```java
-IDatabaseManager db = api.getDatabaseManager();
-
-// Execute raw SQL or custom migrations safely
-db.useConnection(conn -> {
-    try (var stmt = conn.prepareStatement("SELECT * FROM my_addon_table")) {
-        // ...
-    } catch (SQLException e) { ... }
-});
-
-// Check server status in network
-boolean isHead = db.isHead();
-```
-
-### 📂 Config & Assets API
-Access to cached settings and plugin resources.
-```java
-IConfigManager config = api.getConfigManager();
-IAssetManager assets = api.getAssetManager();
-
-// Get cached config files
-FileConfiguration dbConfig = config.getConfig("database");
-
-// Get settings from main config with default
-double tax = config.getSetting("auction.default-tax", 5.0);
-
-// Load resources from plugin JAR
-InputStream is = assets.getResource("custom_menu.yml");
-
-// Register new assets from addon
-assets.registerAsset("menus/addons/my_menu.yml", myInputStream);
-```
-
-### Menu Integration
-Any external GUI library can be integrated while maintaining the auto-close safety feature.
-```java
-// Register external menus for managed cleanup
-getMenuManager().registerMenu(player, externalMenuInstance);
-```
-
-<br/>
-
-## 🎭 Custom Actions API
-CakeAuction allows addons to register their own action tags (e.g., `[MY_ACTION]`), which can be used in any configuration file with built-in support for `<delay=...>` and `<chance=...>`.
-
-### 1. Registering an Action
-Implement the `IAction` functional interface and register it via the `ActionManager`.
-
-```java
-IActionManager actionManager = CakeAuctionAPI.getApi().getActionManager();
-
-// Register a custom action tag: [GIVE_REWARD]
-actionManager.registerAction("GIVE_REWARD", (player, location, parsedText) -> {
-    // parsedText is the string after the tag in the config
-    player.sendMessage("You received a reward: " + parsedText);
-});
-```
-
-### 2. Using in Config
-Administrators can now use your custom action in `config.yml` or any menu:
-```yaml
-actions:
-  - "[GIVE_REWARD] Super Diamond <chance=50> <delay=20>"
-  - "[CONSOLE_COMMAND] effect give {player} speed 10 1"
-```
-
-> [!TIP]
-> **Automatic Formatting:** All placeholders (like `{player}`) are automatically parsed by the core plugin before your action's `run` method is called.
-
-### 💰 Economy API & Custom Providers
-CakeAuction abstracts economy operations, allowing you to interact with the server's economy or register your own provider.
+### IEconomyManager
+Manages multiple currencies and allows custom economy provider registration.
 
 ```java
 IEconomyManager economy = api.getEconomyManager();
 
-// Register a custom economy (e.g., Gems from another plugin)
-economy.registerProvider(new IEconomyProvider() {
-    @Override public String getName() { return "my_gems"; }
-    @Override public double getBalance(OfflinePlayer p) { return ...; }
-    @Override public boolean has(OfflinePlayer p, double a) { return ...; }
-    @Override public boolean withdraw(OfflinePlayer p, double a) { ... }
-    @Override public boolean deposit(OfflinePlayer p, double a) { ... }
-    @Override public String format(double a) { return a + " Gems"; }
-});
+// Check multi-currency support
+if (economy.supportsMultiCurrency()) {
+    double balance = economy.getBalance(player, "playerpoints");
 
-// Regular usage
-if (economy.has(player, 100.0)) {
-    economy.withdraw(player, 100.0);
+    if (economy.has(player, "playerpoints", 250.0)) {
+        economy.withdraw(player, "playerpoints", 250.0);
+        economy.deposit(recipient, "playerpoints", 250.0);
+    }
+
+    String formatted = economy.format("playerpoints", 250.0);
+}
+
+// Register custom economy provider
+economy.registerProvider(new IEconomyProvider() {
+    @Override public String getName() { return "gems"; }
+    @Override public double getBalance(OfflinePlayer p) { return ...; }
+    @Override public boolean has(OfflinePlayer p, double amount) { return ...; }
+    @Override public boolean withdraw(OfflinePlayer p, double amount) { return ...; }
+    @Override public boolean deposit(OfflinePlayer p, double amount) { return ...; }
+    @Override public String format(double amount) { return amount + " Gems"; }
+});
+```
+
+---
+
+### ITaxManager
+Calculates commission rates, seller/buyer shares, and active discount schedules.
+
+```java
+ITaxManager tax = api.getTaxManager();
+
+if (tax.isTaxEnabled()) {
+    // Total tax percentage for player and currency
+    double rate = tax.getTaxRate(player, "vault"); // e.g. 5.0 (5%)
+
+    // Separate seller and buyer tax rates
+    double sellerRate = tax.getSellerTaxRate(player, "vault");
+    double buyerRate = tax.getBuyerTaxRate(player, "vault");
+
+    // Active discount schedule identifier ("none", "night_discount", etc.)
+    String scheduleId = tax.getActiveScheduleId(player);
 }
 ```
 
-### 📡 Network API & Custom Channels
-Send and receive data across your server network (Bungee/Redis) using custom channels.
+---
+
+### IUserManager
+Manages player listing limits, durations, and sales history.
 
 ```java
-INetworkManager network = api.getNetworkManager();
+IUserManager users = api.getUserManager();
 
-// Send a custom packet to all servers
-network.sendCustomPacket("my_addon:sync", dataBytes);
+// Check if player listing limit is reached for a currency
+if (users.isLimitReached(player, "playerpoints")) {
+    player.sendMessage("Listing limit reached.");
+}
 
-// Register a listener for incoming packets
-network.registerCustomPacketHandler("my_addon:sync", (originServer, data) -> {
-    player.sendMessage("Received data from: " + originServer);
-});
-```
+int maxSlots = users.getMaxSlots(player);
+int currencyMaxSlots = users.getMaxSlots(player, "playerpoints");
+long duration = users.getSellDuration(player, "playerpoints");
 
-### 🖥️ Custom GUI Menus
-Create managed GUI menus that benefit from automated cleanup and stress protection.
-
-```java
-IMenuManager menus = api.getMenuManager();
-
-// Open a custom menu provider
-menus.openMenu(player, new IMenuProvider() {
-    @Override
-    public Inventory createInventory(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 27, "Custom Menu");
-        inv.setItem(13, new ItemStack(Material.GOLD_INGOT));
-        return inv;
-    }
-
-    @Override
-    public boolean handleUpdate(Player player, int slot, String action) {
-        if (slot == 13) {
-            player.sendMessage("Clicked Gold!");
-            return true; // Event cancelled
-        }
-        return false;
-    }
-
-    @Override
-    public void onClose(Player player) {
-        // Cleanup logic
-    }
-
-// Register an external GUI library object (like Triumph-GUI) for managed cleanup
-menus.registerMenu(player, externalGuiObject);
-});
+// Record completed transaction in player history
+users.addSale(player.getUniqueId(), 1);
 ```
 
 ---
 
-## 📅 Event API
-Comprehensive event system with process (cancellable) and result events.
+### IBonusLimitManager
+Manages permanent bonus listing slots stored in the database.
 
-### Auction Events (`dev.cakestudio.cakeauctionapi.api.event.auction`)
-| Event | Description | Cancellable |
-| :--- | :--- | :---: |
-| `AuctionItemBuyProcessEvent` | Fires before a purchase is finalized. | ✅ |
-| `AuctionItemBuyCountProcessEvent` | Fires before a partial purchase (buy-count). | ✅ |
-| `AuctionItemSellProcessEvent` | Fires before a new lot is published. | ✅ |
-| `AuctionItemTakeProcessEvent` | Fires before a seller cancels their auction. | ✅ |
-| `AuctionItemTakeUnsoldProcessEvent` | Fires before claiming an expired item. | ✅ |
-| `AuctionItemBuyEvent` | Fired when a purchase is successful. | ❌ |
-| `AuctionItemBuyCountEvent` | When a partial purchase is successful. | ❌ |
-| `AuctionItemSellEvent` | When a new lot is published. | ❌ |
-| `AuctionItemTakeEvent` | When an item is reclaimed by the seller. | ❌ |
-| `AuctionItemTakeUnsoldEvent` | When an expired item is reclaimed. | ❌ |
-| `AuctionItemsLoadedEvent` | Fired when all items are loaded from DB to cache. | ❌ |
-| `AuctionItemAutoBuyEvent` | Fired when an item is bought via auto-buy. | ❌ |
+```java
+IBonusLimitManager bonusLimits = api.getBonusLimitManager();
 
-### User Events (`dev.cakestudio.cakeauctionapi.api.event.user`)
-- `AuctionPassUseEvent`: Fired when a player uses an auction pass.
+// Get current bonus slots
+int bonus = bonusLimits.getBonus(player.getUniqueId());
+
+// Add slots (e.g. from donation store or quest reward)
+bonusLimits.addBonus(player.getUniqueId(), 3);
+
+// Deduct or set absolute slots
+bonusLimits.takeBonus(player.getUniqueId(), 1);
+bonusLimits.setBonus(player.getUniqueId(), 10);
+
+// Reset bonus slots to zero
+bonusLimits.resetBonus(player.getUniqueId());
+```
 
 ---
 
-## 🔗 Hook API
-The Hook API provides a unified way to interact with external plugins like **ItemsAdder** without direct dependencies.
+### IPassManager
+Manages trade passes that reduce auction tax commissions.
 
 ```java
-IHookManager hooks = CakeAuctionAPI.getApi().getHookManager();
+IPassManager passes = api.getPassManager();
 
-// Get a custom item by its identifier
-ItemStack customItem = hooks.getItem("itemsadder:ruby");
+// Create ItemStack pass configured in passes.yml
+if (passes.hasPass("vip_pass")) {
+    ItemStack passItem = passes.createPass("vip_pass");
+    player.getInventory().addItem(passItem);
+}
 
-// Get the unique ID of an item
-String id = hooks.getItemId(someItemStack);
+// Check active pass status and remaining duration
+if (passes.hasActivePass(player)) {
+    double discount = passes.getDiscount(player); // percentage (e.g. 50.0)
+    long remainingMs = passes.getRemainingTime(player);
+}
 ```
 
-### 🔌 Custom Item Hook Providers
-Addons can register custom item providers (e.g. for plugins like Oraxen, MMOItems or custom solutions) to dynamically resolve custom item IDs.
+---
+
+### IUUIDManager
+Generates UUID v7 (time-ordered) and Base62 short identifiers.
 
 ```java
-// Register custom provider
+IUUIDManager uuid = api.getUUIDManager();
+
+// Generate standard UUID v7
+UUID randomUuid = uuid.random();
+
+// Generate UUID v7 with server name hash (prevents collision across nodes)
+UUID serverScoped = uuid.generate("server-lobby-1");
+
+// Convert UUID to compact 10-11 character Base62 ID
+String shortId = uuid.toShortId(randomUuid); // e.g. "7x2K9mPq1z"
+```
+
+---
+
+### IItemManager
+Serializes items to Base64 and generates unique item signatures.
+
+```java
+IItemManager itemManager = api.getItemManager();
+
+// Base64 serialization
+String base64 = itemManager.serialize(itemStack);
+ItemStack deserialized = itemManager.deserialize(base64);
+
+// Digital signature for duplicate detection
+String signature = itemManager.getSignature(itemStack);
+
+// Item generation with placeholder parsing
+ItemStack item = itemManager.generateItem(
+    "DIAMOND_SWORD",
+    "&bExcalibur",
+    List.of("&7Owner: {player}"),
+    Map.of("{player}", player.getName())
+);
+```
+
+---
+
+### IHookManager
+Handles custom item integration for ItemsAdder, Oraxen, Nexo, and custom plugins.
+
+```java
+IHookManager hooks = api.getHookManager();
+
+// Resolve item by external ID
+ItemStack item = hooks.getItem("itemsadder:ruby");
+String itemId = hooks.getItemId(itemStack);
+
+// Register custom item hook provider
 IItemHookProvider provider = new IItemHookProvider() {
     @Override
     public @Nullable ItemStack getItem(@NonNull String id) {
         if (id.equalsIgnoreCase("ruby_gem")) {
-            return new ItemStack(Material.EMERALD); // or custom itemsadder/oraxen stack
+            return new ItemStack(Material.EMERALD);
         }
         return null;
     }
@@ -456,40 +334,200 @@ IItemHookProvider provider = new IItemHookProvider() {
 
     @Override
     public @NonNull String getPrefix() {
-        return "myprovider"; // Matches queries like "myprovider:ruby_gem"
+        return "myplugin"; // Resolves "myplugin:ruby_gem"
     }
 };
 
 hooks.registerProvider(provider);
-
-// Unregister when disabling
-hooks.unregisterProvider(provider);
 ```
 
-<br/>
+---
 
-## 📝 Text & Formatting API
-The Text Manager handles parsing, coloring, and messaging with built-in support for **MiniMessage**, **HEX**, and **PlaceholderAPI**.
+### IActionManager
+Registers custom action tags parsed in configuration files and GUI menus.
 
 ```java
-ITextManager text = CakeAuctionAPI.getApi().getTextManager();
+IActionManager actions = api.getActionManager();
 
-// Parse text to Adventure Component
-Component component = text.parse("<red>Hello <yellow>{player}", player);
-
-// Send message to player
-text.sendMessage(player, "&aWelcome to the auction!");
-
-// Broadcast to all players
-text.broadcast("<rainbow>Special Event Started!");
+// Register action tag: [GIVE_REWARD]
+actions.registerAction("GIVE_REWARD", (player, location, text) -> {
+    player.sendMessage("Reward: " + text);
+});
 ```
 
-<br/>
+Usage in configurations:
+```yaml
+actions:
+  - "[GIVE_REWARD] 100_COINS <chance=50> <delay=10>"
+  - "[CONSOLE_COMMAND] give {player} diamond 1"
+```
 
-## ⚠️ Technical Guidelines
+---
 
-1. **Static Access:** Always use `CakeAuctionAPI.getApi()` to access the implementation.
-2. **ClassLoader Safety:** The managed system handles most cleanup, but avoid static references to addon classes in the core plugin.
-3. **Folia threading:** Never use `Bukkit.getScheduler()` within an addon; regional threading errors may occur on Folia servers. Always use the provided `runTask*` methods.
+### IMonitorManager
+Monitors performance, stress conditions, and displays status reports.
 
-<br/>
+```java
+IMonitorManager monitor = api.getMonitorManager();
+
+// Open interactive status GUI to player (/ah admin status)
+monitor.openStatusMenu(player);
+
+// Send text-based status report to CommandSender
+monitor.sendStatusReport(sender);
+
+// Check server load and stop running stress tests
+if (monitor.isUnderStress() || monitor.isStressTestRunning()) {
+    monitor.stopStressTest();
+}
+```
+
+---
+
+### IDatabaseManager
+Provides database diagnostics, connection access, and head-node verification.
+
+```java
+IDatabaseManager db = api.getDatabaseManager();
+
+// Storage mode: "HYBRID" (Redis + SQL) or "SQL"
+boolean isHybrid = db.isHybridStorage();
+String mode = db.getStorageMode();
+
+// Head node verification (handles scheduled cleanup and expiration)
+boolean isHead = db.isHead();
+
+// Execute queries using managed connection
+db.useConnection(conn -> {
+    try (var stmt = conn.prepareStatement("SELECT COUNT(*) FROM cakeauction_items")) {
+        // Execute query
+    } catch (SQLException e) {
+        // Handle error
+    }
+});
+```
+
+---
+
+### INetworkManager
+Handles inter-server network synchronization and custom packets.
+
+```java
+INetworkManager network = api.getNetworkManager();
+
+// Check synchronization mode ("DIRECT_TCP", "REDIS", "BUNGEE", "NONE")
+String netType = network.getNetworkType();
+boolean isDirectTcp = network.isDirectTcpEnabled();
+
+// Broadcast custom packet to other nodes
+network.sendCustomPacket("addon_channel:sync", payloadBytes);
+
+// Register incoming packet listener
+network.registerCustomPacketHandler("addon_channel:sync", (originServer, data) -> {
+    // Process packet from originServer
+});
+```
+
+---
+
+### IAIManager
+Provides asynchronous access to AI services.
+
+```java
+IAIManager ai = api.getAiManager();
+
+if (ai != null && ai.isEnabled()) {
+    // Price advisory
+    ai.advisePrice(player.getInventory().getItemInMainHand(), "vault").thenAccept(advice -> {
+        if (advice.isSuccess()) {
+            double fair = advice.getFairPrice();
+            String reasoning = advice.getAdvice();
+        }
+    });
+
+    // Semantic query search
+    ai.parseSearchQuery("netherite armor set").thenAccept(result -> {
+        String keyword = result.getKeyword();
+        String category = result.getCategory();
+    });
+
+    // Market summary digest
+    ai.generateMarketDigest().thenAccept(digest -> {
+        // Process text digest
+    });
+}
+```
+
+---
+
+### IMenuManager
+Manages custom GUI menus with automatic cleanup on addon disable.
+
+```java
+IMenuManager menus = api.getMenuManager();
+
+// Register external GUI instance for managed cleanup
+menus.registerMenu(player, externalGuiObject);
+```
+
+---
+
+### ITextManager
+Handles MiniMessage, Legacy formatting, HEX color codes, and PlaceholderAPI.
+
+```java
+ITextManager text = api.getTextManager();
+
+// Parse MiniMessage into Adventure Component
+Component component = text.parse("<gradient:#ff8800:#ffd700>Auction Lot</gradient>");
+
+// Send message to player
+text.sendMessage(player, "<green>Item purchased successfully.");
+
+// Broadcast message across server
+text.broadcast("<yellow>New high-value lot published.");
+```
+
+---
+
+## Events
+
+### Auction Events (`dev.cakestudio.cakeauctionapi.api.event.auction`)
+
+| Event | Description | Cancellable |
+| :--- | :--- | :---: |
+| `AuctionItemBuyProcessEvent` | Before item purchase transaction | Yes |
+| `AuctionItemBuyCountProcessEvent` | Before partial purchase (buy-count) | Yes |
+| `AuctionItemSellProcessEvent` | Before listing a lot | Yes |
+| `AuctionItemTakeProcessEvent` | Before seller cancels listing | Yes |
+| `AuctionItemTakeUnsoldProcessEvent` | Before claiming expired lot | Yes |
+| `AuctionItemBuyEvent` | After successful purchase | No |
+| `AuctionItemBuyCountEvent` | After successful partial purchase | No |
+| `AuctionItemSellEvent` | After lot publication | No |
+| `AuctionItemTakeEvent` | After lot reclaimed by seller | No |
+| `AuctionItemTakeUnsoldEvent` | After expired lot reclaimed | No |
+| `AuctionItemsLoadedEvent` | After items loaded from DB to cache | No |
+| `AuctionItemAutoBuyEvent` | After server auto-buys item | No |
+
+### User Events (`dev.cakestudio.cakeauctionapi.api.event.user`)
+
+| Event | Description | Cancellable |
+| :--- | :--- | :---: |
+| `AuctionPassUseEvent` | When player uses an auction discount pass | No |
+
+```java
+@EventHandler
+public void onPassUse(AuctionPassUseEvent event) {
+    Player player = event.getPlayer();
+    double discountPercent = event.getPercent();
+    long durationMillis = event.getDuration();
+}
+```
+
+---
+
+## Technical Guidelines
+
+1. **Access Point:** Always obtain instances via `CakeAuctionAPI.getApi()`.
+2. **Resource Management:** Use `AbstractAddon` registration helpers (`registerListener`, `registerCommand`) for automatic lifecycle cleanup.
+3. **Scheduler Compatibility:** Do not invoke `Bukkit.getScheduler()` directly. Use `AbstractAddon` scheduler methods or `api.getFoliaLib()` for compatibility with Folia regional threads.

@@ -38,4 +38,22 @@ public interface IDatabaseManager {
      */
     boolean isHead();
 
+    /**
+     * Checks if the plugin is running in hybrid storage mode (Redis/Dragonfly for active lots + SQL for persistent data).
+     *
+     * @return true if hybrid storage is active and connected.
+     */
+    default boolean isHybridStorage() {
+        return false;
+    }
+
+    /**
+     * Gets the current data storage mode ("SQL" or "HYBRID").
+     *
+     * @return The storage mode string.
+     */
+    default String getStorageMode() {
+        return "SQL";
+    }
+
 }

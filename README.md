@@ -2,45 +2,37 @@
 
 [![GitHub Release](https://img.shields.io/github/release/CakesStudio/CakeAuctionAPI.svg?logo=github&color=brightgreen)](https://github.com/CakesStudio/CakeAuctionAPI/releases/latest)
 [![JitPack](https://img.shields.io/jitpack/v/github/CakesStudio/CakeAuctionAPI.svg?logo=jitpack&color=blue)](https://jitpack.io/#CakesStudio/CakeAuctionAPI)
-![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk)
+![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?logo=opensourceinitiative&color=blue)](LICENSE)
 
-The official developer interface for **CakeAuction**. This API provides a managed environment for building robust addons, interacting with the auction ecosystem, and ensuring cross-platform compatibility.
+Developer API for **CakeAuction** (Minecraft Paper/Folia). Provides managed addon lifecycle, economy hooks, cross-server networking, and auction event handling.
 
-<br/>
+## Overview
 
-## 📝 Description
-CakeAuction API is designed to provide high-level abstractions for auction management while maintaining complete isolation through a dedicated Addon System. It allows developers to extend core functionality without manual resource management or boilerplate code.
+- **Managed Lifecycle:** Automatic registration and cleanup of listeners, commands, tasks, and menus.
+- **Folia & Paper Concurrency:** Integrated FoliaLib scheduler for thread safety.
+- **Multi-Currency Economy:** Extensible provider system (`IEconomyProvider`).
+- **Transactional Events:** Cancellable process events prior to database transactions.
+- **Networking & Synchronization:** Direct TCP, Redis Pub/Sub, and BungeeCord plugin messaging.
 
-**Key Features:**
-- **Managed Lifecycle:** Automated registration and cleanup of listeners, commands, and tasks.
-- **Native Folia Support:** Built-in integration with FoliaLib for regional threading.
-- **Dependency Isolation:** Each addon operates in its own ClassLoader.
-- **Transactional Events:** Pre-process events allow validation and cancellation before database commits.
+## Dependency Configuration
 
-<br/>
-
-## 🚀 Installation
-
-> [!IMPORTANT]
-> **No Standalone Installation Needed:** The API is already bundled within the main **CakeAuction** plugin. You do **not** need to put a separate API JAR in your server's `/plugins` folder.
-
-> [!TIP]
-> CakeAuction API is hosted on **JitPack**. Ensure you use the `compileOnly` scope to avoid bundling the API into your JAR.
+The API is bundled into the main CakeAuction plugin. Include the API dependency using `compileOnly` (Gradle) or `provided` (Maven).
 
 ### Gradle (Groovy)
+
 ```groovy
 repositories {
     maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    // Note: use :api suffix to depend only on the API module
     compileOnly 'com.github.CakesStudio:CakeAuctionAPI:VERSION'
 }
 ```
 
 ### Maven
+
 ```xml
 <repositories>
     <repository>
@@ -58,49 +50,32 @@ dependencies {
     </dependency>
 </dependencies>
 ```
-*(Replace `VERSION` with the target release, e.g., `1.6.0`)*
 
-<br/>
+*(Replace `VERSION` with the target release, e.g. `1.6.1`)*
 
-## 📦 Library Relocation & Dependencies
-CakeAuction core relocates its internal libraries (like **Adventure API** and **FoliaLib**) to prevent version conflicts.
-Because of this, your addon **MUST relocate** these libraries to match the internal package of CakeAuction.
+## Library Relocation
 
-> [!CAUTION]
-> **Why?** If you don't relocate, your addon will use `net.kyori` package, but CakeAuction API methods (which are part of the core JAR) are already transformed to use relocated packages. This will lead to `NoSuchMethodError` at runtime.
+The CakeAuction core plugin relocates Adventure (`net.kyori`) and FoliaLib (`com.tcoded`). Addons referencing these libraries must relocate them into identical target packages to avoid runtime `NoSuchMethodError`.
 
-Simply use `compileOnly` for these dependencies in your `build.gradle` and **always relocate** them:
-
-**Correct build.gradle setup (Addon):**
-```gradle
+```groovy
 dependencies {
-    // API dependency
     compileOnly 'com.github.CakesStudio:CakeAuctionAPI:VERSION'
-
-    // Core libraries used by API (must be compileOnly)
-    compileOnly "com.tcoded:FoliaLib:0.5.1"
+    compileOnly 'com.tcoded:FoliaLib:0.5.1'
     compileOnly 'net.kyori:adventure-platform-bukkit:4.4.1'
     compileOnly 'net.kyori:adventure-text-minimessage:4.26.1'
-    compileOnly 'net.kyori:adventure-text-serializer-legacy:4.26.1'
-    compileOnly 'net.kyori:adventure-text-serializer-plain:4.26.1'
 }
 
 tasks.shadowJar {
-    // Relocate to match CakeAuction internal structure
     relocate 'net.kyori', 'dev.cakestudio.cakeauction.libs.kyori'
     relocate 'com.tcoded.folialib', 'dev.cakestudio.cakeauction.libs.folialib'
 }
 ```
 
-<br/>
+## Documentation
 
-<br/>
-
-## 📖 Documentation
-Detailed guides, manager usage, and event references can be found in the:
-### 👉 [**API Documentation (DOCUMENTATION.md)**](DOCUMENTATION.md)
-
-<br/>
+Full API reference, manager usage examples, and event tables:
+- [API Documentation (DOCUMENTATION.md)](DOCUMENTATION.md)
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file.

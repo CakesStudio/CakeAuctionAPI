@@ -31,4 +31,22 @@ public interface INetworkManager {
      */
     void registerCustomPacketHandler(String channel, BiConsumer<String, byte[]> listener);
 
+    /**
+     * Checks if Direct TCP socket synchronization is enabled.
+     *
+     * @return true if Direct TCP transport is active, false otherwise.
+     */
+    default boolean isDirectTcpEnabled() {
+        return false;
+    }
+
+    /**
+     * Gets the active network transport type (e.g. "DIRECT_TCP", "REDIS", "BUNGEE", or "NONE").
+     *
+     * @return The transport type identifier.
+     */
+    default String getNetworkType() {
+        return "NONE";
+    }
+
 }

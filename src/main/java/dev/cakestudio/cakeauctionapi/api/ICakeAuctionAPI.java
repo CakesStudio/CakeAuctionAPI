@@ -4,6 +4,7 @@ import com.tcoded.folialib.FoliaLib;
 
 import dev.cakestudio.cakeauctionapi.api.data.IAuctionItem;
 import dev.cakestudio.cakeauctionapi.api.manager.action.*;
+import dev.cakestudio.cakeauctionapi.api.manager.ai.IAIManager;
 import dev.cakestudio.cakeauctionapi.api.manager.auction.*;
 import dev.cakestudio.cakeauctionapi.api.manager.economy.*;
 import dev.cakestudio.cakeauctionapi.api.manager.system.*;
@@ -221,6 +222,33 @@ public interface ICakeAuctionAPI {
      * @return The {@link ITaxManager} instance.
      */
     default ITaxManager getTaxManager() {
+        return null;
+    }
+
+    /**
+     * Returns the manager responsible for AI services and integrations.
+     *
+     * @return The {@link IAIManager} instance, or null if disabled.
+     */
+    default IAIManager getAiManager() {
+        return null;
+    }
+
+    /**
+     * Returns the manager responsible for player bonus auction lot slots.
+     *
+     * @return The {@link IBonusLimitManager} instance.
+     */
+    default IBonusLimitManager getBonusLimitManager() {
+        return null;
+    }
+
+    /**
+     * Returns the manager responsible for discount passes.
+     *
+     * @return The {@link IPassManager} instance.
+     */
+    default IPassManager getPassManager() {
         return null;
     }
 
