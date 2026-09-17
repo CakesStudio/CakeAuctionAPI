@@ -253,6 +253,15 @@ public interface ICakeAuctionAPI {
     }
 
     /**
+     * Returns the manager responsible for slot rentals.
+     *
+     * @return The {@link IRentManager} instance.
+     */
+    default IRentManager getRentManager() {
+        return null;
+    }
+
+    /**
      * Returns the manager responsible for external plugin hooks.
      *
      * @return The {@link IHookManager} instance.

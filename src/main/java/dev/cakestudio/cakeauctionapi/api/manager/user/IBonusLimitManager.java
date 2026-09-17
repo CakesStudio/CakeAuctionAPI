@@ -77,4 +77,29 @@ public interface IBonusLimitManager {
      */
     void activatePass(UUID uuid, double discount, long durationMillis);
 
+    /**
+     * Gets the number of active rented auction slots for the player.
+     *
+     * @param uuid The UUID of the player.
+     * @return The rented slot count, or 0 if inactive/expired.
+     */
+    int getRentSlots(UUID uuid);
+
+    /**
+     * Gets the epoch timestamp in milliseconds when the player's rental expires.
+     *
+     * @param uuid The UUID of the player.
+     * @return Expiry timestamp in millis, or 0 if expired/inactive.
+     */
+    long getRentExpiry(UUID uuid);
+
+    /**
+     * Activates or extends a slot rental for the player.
+     *
+     * @param uuid           The UUID of the player.
+     * @param slots          The number of rented slots.
+     * @param durationMillis Duration of the rental in milliseconds.
+     */
+    void activateRent(UUID uuid, int slots, long durationMillis);
+
 }

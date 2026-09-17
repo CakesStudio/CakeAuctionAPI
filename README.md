@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:VERSION'
+    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:2.0.0'
 }
 ```
 
@@ -45,13 +45,11 @@ dependencies {
     <dependency>
         <groupId>com.github.CakesStudio</groupId>
         <artifactId>CakeAuctionAPI</artifactId>
-        <version>VERSION</version>
+        <version>2.0.0</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
 ```
-
-*(Replace `VERSION` with the target release, e.g. `1.6.1`)*
 
 ## Library Relocation
 
@@ -59,7 +57,7 @@ The CakeAuction core plugin relocates Adventure (`net.kyori`) and FoliaLib (`com
 
 ```groovy
 dependencies {
-    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:VERSION'
+    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:2.0.0'
     compileOnly 'com.tcoded:FoliaLib:0.5.1'
     compileOnly 'net.kyori:adventure-platform-bukkit:4.4.1'
     compileOnly 'net.kyori:adventure-text-minimessage:4.26.1'
@@ -74,6 +72,7 @@ tasks.shadowJar {
 ## Documentation
 
 Full API reference, manager usage examples, and event tables:
+
 - [API Documentation (DOCUMENTATION.md)](DOCUMENTATION.md)
 
 ## License

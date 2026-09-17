@@ -33,13 +33,14 @@ api.cancelAuction(seller, auctionItem);
 CakeAuction loads and manages addons located in `plugins/CakeAuction/addons/`.
 
 ### Metadata (addon.yml)
+
 Place `addon.yml` in `src/main/resources`:
 
 ```yaml
 name: CustomAuctionAddon
 main: com.example.addon.CustomAddon
 version: 1.0.0
-api-version: '1.6.1'
+api-version: '2.0.0'
 folia-supported: true
 description: "Custom CakeAuction addon"
 authors: [ "Developer" ]
@@ -48,6 +49,7 @@ soft-depend: []
 ```
 
 ### Main Class (AbstractAddon)
+
 Addon main classes must extend `AbstractAddon`. Listeners, commands, tasks, and menus registered through it are automatically cleaned up when the addon is disabled.
 
 ```java
@@ -220,7 +222,7 @@ users.addSale(player.getUniqueId(), 1);
 ---
 
 ### IBonusLimitManager
-Manages permanent bonus listing slots stored in the database.
+Manages permanent bonus listing slots and temporary slot rentals stored in the database.
 
 ```java
 IBonusLimitManager bonusLimits = api.getBonusLimitManager();
@@ -237,6 +239,44 @@ bonusLimits.setBonus(player.getUniqueId(), 10);
 
 // Reset bonus slots to zero
 bonusLimits.resetBonus(player.getUniqueId());
+
+// Query active rented slots and rental expiration timestamp
+int rentSlots = bonusLimits.getRentSlots(player.getUniqueId());
+long rentExpiry = bonusLimits.getRentExpiry(player.getUniqueId());
+
+// Directly activate or extend rental (e.g. 5 slots for 24 hours)
+bonusLimits.activateRent(player.getUniqueId(), 5, 86400000L);
+```
+
+---
+
+### IRentManager
+Manages temporary slot rental mechanics, tariff tiers, and payment processing (/ah rent).
+
+```java
+IRentManager rentManager = api.getRentManager();
+
+if (rentManager != null && rentManager.isEnabled()) {
+    // Check if LuckPerms temporary permission synchronization is enabled
+    boolean useLp = rentManager.isUseLuckPerms();
+
+    // Query player's active rented slots and expiry
+    int activeSlots = rentManager.getActiveRentSlots(player.getUniqueId());
+    long expiryMillis = rentManager.getRentExpiry(player.getUniqueId());
+
+    // Inspect available rental tiers configured in settings/economy/limits.yml
+    Collection<? extends IRentTier> tiers = rentManager.getTiers();
+    for (IRentTier tier : tiers) {
+        String key = tier.getKey();
+        int slots = tier.getSlots();
+        double price = tier.getPrice();
+        String currency = tier.getCurrency();
+        long duration = tier.getDurationMillis();
+    }
+
+    // Process rental transaction for a player (charges player and activates slots)
+    boolean success = rentManager.rent(player, "tier_3", "vault");
+}
 ```
 
 ---
