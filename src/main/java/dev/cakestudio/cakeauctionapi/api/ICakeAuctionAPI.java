@@ -276,7 +276,7 @@ public interface ICakeAuctionAPI {
     boolean isAuctionLoaded();
 
     /**
-     * Registers a command object using the internal TriumphTeam Command library.
+     * Registers a command object using the internal LiteCommands library.
      * Integrated into the plugin's main command manager.
      *
      * @param command The command object to register.
