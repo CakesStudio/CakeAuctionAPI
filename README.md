@@ -7,9 +7,12 @@
 
 Developer API for **CakeAuction** (Minecraft Paper/Folia). Provides managed addon lifecycle, economy hooks, cross-server networking, and auction event handling.
 
+API 2.1.0 is prepared in the source tree but has not been released. Replace `VERSION` in the examples with an available version.
+
 ## Overview
 
 - **Managed Lifecycle:** Automatic registration and cleanup of listeners, commands, tasks, and menus.
+- **Обновление конфигов аддонов:** Подключаемые миграции по `config-version`, сохранение пользовательских значений и резервные копии.
 - **Folia & Paper Concurrency:** Integrated FoliaLib scheduler for thread safety.
 - **Multi-Currency Economy:** Extensible provider system (`IEconomyProvider`).
 - **Transactional Events:** Cancellable process events prior to database transactions.
@@ -27,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:2.0.0'
+    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:VERSION'
 }
 ```
 
@@ -45,7 +48,7 @@ dependencies {
     <dependency>
         <groupId>com.github.CakesStudio</groupId>
         <artifactId>CakeAuctionAPI</artifactId>
-        <version>2.0.0</version>
+        <version>VERSION</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -57,7 +60,7 @@ The CakeAuction core plugin relocates Adventure (`net.kyori`) and FoliaLib (`com
 
 ```groovy
 dependencies {
-    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:2.0.0'
+    compileOnly 'com.github.CakesStudio:CakeAuctionAPI:VERSION'
     compileOnly 'com.tcoded:FoliaLib:0.5.1'
     compileOnly 'net.kyori:adventure-platform-bukkit:4.4.1'
     compileOnly 'net.kyori:adventure-text-minimessage:4.26.1'
@@ -70,6 +73,23 @@ tasks.shadowJar {
 ```
 
 ## Documentation
+
+The configuration update feature requires a CakeAuction build with API 2.1.0 support.
+
+Автообновление включается переопределением `getConfigUpdateOptions()` в `AbstractAddon`:
+
+```java
+import dev.cakestudio.cakeauctionapi.config.ConfigUpdateOptions;
+
+@Override
+protected ConfigUpdateOptions getConfigUpdateOptions() {
+    return ConfigUpdateOptions.builder()
+            .relocate(2, "messages.loaded", "messages.ready")
+            .build();
+}
+```
+
+Без переименований достаточно вернуть `ConfigUpdateOptions.DEFAULT`. Конфиг обновляется до `onEnable()` и при `reloadConfig()`; новый `config.yml` создаётся автоматически. Отдельный загрузчик в каждом аддоне не нужен. Подробности: [автообновление конфигов](DOCUMENTATION.md#автообновление-конфигов).
 
 Full API reference, manager usage examples, and event tables:
 

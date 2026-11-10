@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'dev.cakestudio'
-version = '2.0.0'
+version = '2.1.0'
 
 repositories {
     mavenCentral()
@@ -15,6 +15,8 @@ repositories {
 }
 
 dependencies {
+    api project(':config-updater')
+
     compileOnly 'com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT'
 
     // Folia

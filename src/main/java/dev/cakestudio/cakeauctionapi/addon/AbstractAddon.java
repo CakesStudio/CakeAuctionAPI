@@ -3,6 +3,9 @@ package dev.cakestudio.cakeauctionapi.addon;
 import dev.cakestudio.cakeauctionapi.CakeAuctionAPI;
 import dev.cakestudio.cakeauctionapi.api.manager.ui.IMenuManager;
 import dev.cakestudio.cakeauctionapi.api.ICakeAuctionAPI;
+import dev.cakestudio.cakeauctionapi.config.ConfigUpdateOptions;
+import dev.cakestudio.cakeauctionapi.config.ConfigUpdateResult;
+import dev.cakestudio.cakeauctionapi.config.YamlConfigUpdater;
 
 import com.tcoded.folialib.wrapper.task.WrappedTask;
 
@@ -26,6 +29,8 @@ import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
@@ -103,6 +108,8 @@ public abstract class AbstractAddon {
                 logger.info("Enabling " + description.name() + " v" + description.version());
 
                 this.enabled = true;
+
+                if (getConfigUpdateOptions() != null) reloadConfig();
 
                 onEnable();
 
@@ -318,9 +325,51 @@ public abstract class AbstractAddon {
     }
 
     /**
+     * Opts config.yml into automatic updates before onEnable and on each reloadConfig.
+     * Return DEFAULT for missing-key merging, or rules from builder().relocate(...).build().
+     * The default null keeps existing addons' configuration behavior unchanged.
+     * This method can run before onEnable; do not depend on initialization done there.
+     */
+    @Nullable
+    protected ConfigUpdateOptions getConfigUpdateOptions() {
+        return null;
+    }
+
+    /**
+     * Updates an additional YAML resource inside this addon's data folder.
+     * Resources must contain a positive integer config-version. Existing files are backed up
+     * before an upgrade; invalid YAML is not overwritten. Throws if the resource is missing or
+     * the update cannot safely be completed. Does not reload the cached config.yml.
+     */
+    public final ConfigUpdateResult updateConfig(@NonNull String resourcePath, @NonNull ConfigUpdateOptions options) {
+        if (!initialized) throw new IllegalStateException("Addon is not initialized");
+        try {
+            Path root = dataFolder.getCanonicalFile().toPath();
+            Path target = new File(dataFolder, resourcePath).getCanonicalFile().toPath();
+            if (target.equals(root) || !target.startsWith(root)) {
+                throw new IllegalArgumentException("Configuration path must stay inside the addon data folder");
+            }
+            try (InputStream defaults = getResource(resourcePath)) {
+                if (defaults == null) throw new IllegalArgumentException("Missing addon configuration resource: " + resourcePath);
+                ConfigUpdateResult result = YamlConfigUpdater.update(target, defaults, options);
+                if (result.changed()) {
+                    logger.info("Updated configuration " + resourcePath + ": " + result.previousVersion()
+                            + " -> " + result.currentVersion()
+                            + (result.backup() == null ? "" : "; backup: " + result.backup()));
+                }
+                return result;
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not update addon configuration " + resourcePath, e);
+        }
+    }
+
+    /**
      * Reloads the configuration from the file on disk.
      */
     public final void reloadConfig() {
+        ConfigUpdateOptions updateOptions = getConfigUpdateOptions();
+        if (updateOptions != null) updateConfig("config.yml", updateOptions);
         if (configFile == null || !configFile.exists()) {
             config = new YamlConfiguration();
             return;
@@ -328,10 +377,14 @@ public abstract class AbstractAddon {
 
         config = YamlConfiguration.loadConfiguration(configFile);
 
-        InputStream defaultStream = getResource("config.yml");
-        if (defaultStream != null) {
-            YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultStream));
-            config.setDefaults(defaultConfig);
+        try (InputStream defaultStream = getResource("config.yml")) {
+            if (defaultStream != null) {
+                YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
+                        new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
+                config.setDefaults(defaultConfig);
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not read default addon configuration", e);
         }
     }
 
@@ -352,6 +405,11 @@ public abstract class AbstractAddon {
      * Saves the default config.yml from the JAR resources to the data folder if it doesn't exist.
      */
     public final void saveDefaultConfig() {
+        ConfigUpdateOptions updateOptions = getConfigUpdateOptions();
+        if (updateOptions != null) {
+            updateConfig("config.yml", updateOptions);
+            return;
+        }
         if (!configFile.exists()) {
             saveResource("config.yml", false);
         }
