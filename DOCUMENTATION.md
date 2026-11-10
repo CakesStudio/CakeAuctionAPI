@@ -40,7 +40,7 @@ Place `addon.yml` in `src/main/resources`:
 name: CustomAuctionAddon
 main: com.example.addon.CustomAddon
 version: 1.0.0
-api-version: '2.0.0'
+api-version: '2.1.0'
 folia-supported: true
 description: "Custom CakeAuction addon"
 authors: [ "Developer" ]
