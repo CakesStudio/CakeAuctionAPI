@@ -7,6 +7,7 @@ import dev.cakestudio.cakeauctionapi.api.manager.action.*;
 import dev.cakestudio.cakeauctionapi.api.manager.ai.IAIManager;
 import dev.cakestudio.cakeauctionapi.api.manager.auction.*;
 import dev.cakestudio.cakeauctionapi.api.manager.economy.*;
+import dev.cakestudio.cakeauctionapi.api.manager.history.IHistoryManager;
 import dev.cakestudio.cakeauctionapi.api.manager.system.*;
 import dev.cakestudio.cakeauctionapi.api.manager.ui.*;
 import dev.cakestudio.cakeauctionapi.api.manager.user.*;
@@ -267,6 +268,15 @@ public interface ICakeAuctionAPI {
      * @return The {@link IHookManager} instance.
      */
     IHookManager getHookManager();
+
+    /**
+     * Returns the manager responsible for player transaction history and statistics.
+     *
+     * @return The {@link IHistoryManager} instance, or null if unavailable.
+     */
+    default IHistoryManager getHistoryManager() {
+        return null;
+    }
 
     /**
      * Checks if the auction items have been loaded from the database into the cache.
