@@ -2,7 +2,7 @@
 
 [![GitHub Release](https://img.shields.io/github/release/CakesStudio/CakeAuctionAPI.svg?logo=github&color=brightgreen)](https://github.com/CakesStudio/CakeAuctionAPI/releases/latest)
 [![JitPack](https://img.shields.io/jitpack/v/github/CakesStudio/CakeAuctionAPI.svg?logo=jitpack&color=blue)](https://jitpack.io/#CakesStudio/CakeAuctionAPI)
-![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
+![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?logo=opensourceinitiative&color=blue)](LICENSE)
 
 Developer API for **CakeAuction** (Minecraft Paper/Folia). Provides managed addon lifecycle, economy hooks, cross-server networking, and auction event handling.
